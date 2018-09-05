@@ -23,10 +23,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>se.hirt.examples</groupId>
-	<artifactId>customer-service</artifactId>
+	<artifactId>robot-factory-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Customer Service</name>
+	<name>Robot Factory Service</name>
 	<url>http://maven.apache.org</url>
 	<description>A minimal, simple, microservice that can be used to train your profiling and diagnostic chops </description>
 	<properties>
@@ -96,8 +96,8 @@
 					<assembleDirectory>target</assembleDirectory>
 					<programs>
 						<program>
-							<mainClass>se.hirt.examples.customerservice.Main</mainClass>
-							<id>customerService</id>
+							<mainClass>se.hirt.examples.robotfactory.Main</mainClass>
+							<id>robotFactoryService</id>
 						</program>
 				</programs>
 				</configuration>

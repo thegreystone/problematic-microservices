@@ -32,9 +32,10 @@
 package se.hirt.examples.customerservice.data;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 /**
  * Simplified data access. 
  * 
@@ -42,48 +43,115 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author Marcus Hirt
  */
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class DataAccess {
-	private final static Map<Long, Customer> CUSTOMERS = new ConcurrentHashMap<>();
-	private final static Map<String, Customer> CUSTOMERS_INDEX_BY_NAME = new ConcurrentHashMap<>();
-	private final static Map<String, Customer> CUSTOMERS_INDEX_BY_PHONE = new ConcurrentHashMap<>();
+	private final static Map<Long, Customer> CUSTOMERS = new HashMap<>();
+	private final static Map<String, Customer> CUSTOMERS_INDEX_BY_NAME = new HashMap<>();
+	private final static Map<String, Customer> CUSTOMERS_INDEX_BY_PHONE = new HashMap<>();
+	private final static ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 	private final static Random CUSTOMER_ID_GENERATOR = new Random();
 
-	public static Customer createCustomer(String fullName, String phoneNumber) {
-		Customer newCustomer = new Customer(Math.abs(CUSTOMER_ID_GENERATOR.nextLong()), fullName, phoneNumber);
-		CUSTOMERS.put(newCustomer.getId(), newCustomer);
-		CUSTOMERS_INDEX_BY_NAME.put(newCustomer.getFullName(), newCustomer);
-		CUSTOMERS_INDEX_BY_PHONE.put(newCustomer.getPhoneNumber(), newCustomer);
-		return newCustomer;
+	/**
+	 * Synchronizing write access
+	 * 
+	 * @param fullName
+	 * @param phoneNumber
+	 * @return
+	 */
+	public static synchronized Customer createCustomer(String fullName, String phoneNumber) {
+		Lock writeLock = readWriteLock.writeLock();
+		try {
+			writeLock.lock();
+			Customer newCustomer = new Customer(getNewId(), fullName, phoneNumber);
+			CUSTOMERS.put(newCustomer.getId(), newCustomer);
+			CUSTOMERS_INDEX_BY_NAME.put(newCustomer.getFullName(), newCustomer);
+			CUSTOMERS_INDEX_BY_PHONE.put(newCustomer.getPhoneNumber(), newCustomer);
+			return newCustomer;
+		} finally {
+			writeLock.unlock();
+		}
 	}
 
 	public static Collection<Customer> getAllCustomers() {
-		return CUSTOMERS.values();
+		Lock readLock = readWriteLock.readLock();
+		try {
+			return CUSTOMERS.values();
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public static Customer getCustomerByName(String fullName) {
-		return CUSTOMERS_INDEX_BY_NAME.get(fullName);
+		Lock readLock = readWriteLock.readLock();
+		try {
+			return CUSTOMERS_INDEX_BY_NAME.get(fullName);
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public static Customer getCustomerByPhone(String phone) {
-		return CUSTOMERS_INDEX_BY_PHONE.get(phone);
+		Lock readLock = readWriteLock.readLock();
+		try {
+			return CUSTOMERS_INDEX_BY_PHONE.get(phone);
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public static void removeCustomer(Customer customer) {
-		CUSTOMERS.remove(customer.getId());
-		CUSTOMERS_INDEX_BY_NAME.remove(customer.getFullName());
+		Lock writeLock = readWriteLock.writeLock();
+		try {
+			writeLock.lock();
+			CUSTOMERS.remove(customer.getId());
+			CUSTOMERS_INDEX_BY_NAME.remove(customer.getFullName());
+		} finally {
+			writeLock.unlock();
+		}
 	}
 
 	public static int getNumberOfCustomers() {
-		return CUSTOMERS.size();
+		Lock readLock = readWriteLock.readLock();
+		try {
+			return CUSTOMERS.size();
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public static Customer getCustomerById(Long id) {
-		return CUSTOMERS.get(id);
+		Lock readLock = readWriteLock.readLock();
+		try {
+			return CUSTOMERS.get(id);
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public static void updateCustomer(Long id, String fullName, String phoneNumber) {
-		Customer updated = new Customer(id, fullName, phoneNumber);
-		CUSTOMERS.put(id, updated);
+		Lock writeLock = readWriteLock.writeLock();
+		try {
+			writeLock.lock();
+			Customer updated = new Customer(id, fullName, phoneNumber);
+			CUSTOMERS.put(id, updated);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+	private static long getNewId() {
+		long newId = createNewId();
+		// In the unlikely event of a collision...
+		while (CUSTOMERS.get(newId) != null) {
+			newId = createNewId();
+		}
+		return newId;
+	}
+
+	private static long createNewId() {
+		return Math.abs(CUSTOMER_ID_GENERATOR.nextLong());
 	}
 }
