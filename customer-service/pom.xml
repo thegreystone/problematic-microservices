@@ -63,16 +63,6 @@
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<version>${tomcat.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-websocket</artifactId>
-            <version>${tomcat.version}</version>
-        </dependency>
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jasper-el</artifactId>
-			<version>${tomcat.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jsp-api</artifactId>
@@ -86,11 +76,6 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-binding</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.inject</groupId>
-			<artifactId>jersey-hk2</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
 	</dependencies>
