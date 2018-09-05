@@ -78,6 +78,7 @@ public class DataAccess {
 	public static Collection<Customer> getAllCustomers() {
 		Lock readLock = readWriteLock.readLock();
 		try {
+			readLock.lock();
 			return CUSTOMERS.values();
 		} finally {
 			readLock.unlock();
@@ -87,6 +88,7 @@ public class DataAccess {
 	public static Customer getCustomerByName(String fullName) {
 		Lock readLock = readWriteLock.readLock();
 		try {
+			readLock.lock();
 			return CUSTOMERS_INDEX_BY_NAME.get(fullName);
 		} finally {
 			readLock.unlock();
@@ -96,6 +98,7 @@ public class DataAccess {
 	public static Customer getCustomerByPhone(String phone) {
 		Lock readLock = readWriteLock.readLock();
 		try {
+			readLock.lock();
 			return CUSTOMERS_INDEX_BY_PHONE.get(phone);
 		} finally {
 			readLock.unlock();
@@ -116,6 +119,7 @@ public class DataAccess {
 	public static int getNumberOfCustomers() {
 		Lock readLock = readWriteLock.readLock();
 		try {
+			readLock.lock();
 			return CUSTOMERS.size();
 		} finally {
 			readLock.unlock();
@@ -125,6 +129,7 @@ public class DataAccess {
 	public static Customer getCustomerById(Long id) {
 		Lock readLock = readWriteLock.readLock();
 		try {
+			readLock.lock();
 			return CUSTOMERS.get(id);
 		} finally {
 			readLock.unlock();
