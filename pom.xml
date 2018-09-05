@@ -8,6 +8,7 @@
 	<modules>
 		<module>customer-service</module>
 		<module>robot-factory-service</module>
+		<module>robot-order-service</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
