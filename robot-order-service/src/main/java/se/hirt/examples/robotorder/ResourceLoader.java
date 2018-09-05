@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory;
+package se.hirt.examples.robotorder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,10 +38,9 @@ import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.jsonb.internal.JsonBindingProvider;
 
-import se.hirt.examples.robotfactory.rest.RobotTypeResource;
-import se.hirt.examples.robotfactory.rest.RobotTypesResource;
-import se.hirt.examples.robotfactory.rest.FactoryResource;
-import se.hirt.examples.robotfactory.rest.HelloRest;
+import se.hirt.examples.robotorder.rest.HelloRest;
+import se.hirt.examples.robotorder.rest.RobotOrderResource;
+import se.hirt.examples.robotorder.rest.RobotOrdersResource;
 
 /**
  * Programmatic adding of our specific REST resources.
@@ -54,9 +53,8 @@ public class ResourceLoader extends Application {
 	public Set<Class<?>> getClasses() {
 		final Set<Class<?>> classes = new HashSet<Class<?>>();
 		classes.add(HelloRest.class);
-		classes.add(RobotTypeResource.class);
-		classes.add(RobotTypesResource.class);
-		classes.add(FactoryResource.class);
+		classes.add(RobotOrderResource.class);
+		classes.add(RobotOrdersResource.class);
 		classes.add(JsonBindingProvider.class);
 		return classes;
 	}

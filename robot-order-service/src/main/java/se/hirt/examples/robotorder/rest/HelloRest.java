@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory.rest;
+package se.hirt.examples.robotorder.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

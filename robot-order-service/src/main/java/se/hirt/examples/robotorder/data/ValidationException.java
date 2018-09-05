@@ -1,4 +1,4 @@
-package se.hirt.examples.robotfactory.data;
+package se.hirt.examples.robotorder.data;
 
 public class ValidationException extends Exception {
 	private static final long serialVersionUID = 7205563550725471828L;

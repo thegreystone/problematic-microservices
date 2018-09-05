@@ -125,7 +125,7 @@ public class Customer implements Serializable {
 	}
 
 	public static Customer fromJSon(JsonObject json) {
-		JsonNumber jsonNumberId = json.getJsonNumber(CustomerKeys.ID);
+		JsonNumber jsonNumberId = json.getJsonNumber(CustomerKeys.CUSTOMER_ID);
 
 		if ((jsonNumberId == null)) {
 			throw new IllegalArgumentException("Must have ID to create customer object from JSon");
@@ -140,7 +140,7 @@ public class Customer implements Serializable {
 	public static JsonObjectBuilder toJSon(Customer customer) {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(CustomerKeys.ID, String.valueOf(customer.getId()));
+		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(customer.getId()));
 		builder.add(CustomerKeys.FULL_NAME, customer.getFullName());
 		builder.add(CustomerKeys.PHONE_NUMBER, customer.getPhoneNumber());
 		return builder;

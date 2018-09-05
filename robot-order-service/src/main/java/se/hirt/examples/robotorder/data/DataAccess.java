@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory.data;
+package se.hirt.examples.robotorder.data;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,41 +41,21 @@ import java.util.Map;
  * @author Marcus Hirt
  */
 public class DataAccess {
-	private final static Map<String, RobotType> ROBOT_TYPES = new HashMap<>();
+	private final static Map<Long, RobotOrder> ROBOT_ORDERS = new HashMap<>();
 
-	static {
-		addDefaultRobotTypes();
+	public static Collection<RobotOrder> getAvailableRobotOrders() {
+		return ROBOT_ORDERS.values();
 	}
 
-	public static Collection<RobotType> getAvailableRobotTypes() {
-		return ROBOT_TYPES.values();
+	public static void addRobotOrder(RobotOrder robotOrder) {
+		ROBOT_ORDERS.put(robotOrder.getOrderId(), robotOrder);
 	}
 
-	private static void addDefaultRobotTypes() {
-		createRobotType("Wall-E", "Cute little cubic garbage disposal robot.");
-		createRobotType("EVE", "Advanced little robot. Specializes in retrieval of plants.");
-		createRobotType("Coff-E", "3D printed robot with laser range finder. Looks a bit like Wall-E.");
-		createRobotType("T-800", "Terminator robot. Please read the legal disclaimers and owner responsibilities.");
-		createRobotType("T-1000",
-				"Terminator robot that can change shape. Please read the legal disclaimers and owner responsibilities.");
-		createRobotType("R2-D2", "Versatile astromech droid.");
-		createRobotType("BB-8", "Spherical astromech droid.");
-		createRobotType("Baymax", "Inflatable medical droid.");
+	public static RobotOrder getRobotOrderById(Long id) {
+		return ROBOT_ORDERS.get(id);
 	}
 
-	private static void createRobotType(String typeId, String description) {
-		addRobotType(new RobotType(typeId, description));
-	}
-
-	public static void addRobotType(RobotType robotType) {
-		ROBOT_TYPES.put(robotType.getTypeId(), robotType);
-	}
-
-	public static RobotType getRobotTypeById(String id) {
-		return ROBOT_TYPES.get(id);
-	}
-
-	public static void removeRobotType(RobotType robotType) {
-		ROBOT_TYPES.remove(robotType.getTypeId());
+	public static void removeRobotOrder(RobotOrder robotOrder) {
+		ROBOT_ORDERS.remove(robotOrder.getOrderId());
 	}
 }

@@ -49,13 +49,13 @@ public class FactoryResource {
 					.entity(Utils.errorAsJSonString(Robot.KEY_COLOR + " must not be null!")).build();
 		}
 
-		Color paint = Color.valueOf(color.toUpperCase());
+		Color paint = Color.fromString(color);
 		if (paint == null) {
 			return Response.status(Status.BAD_REQUEST).entity(Utils.errorAsJSonString(color + " is not a valid color!"))
 					.build();
 		}
 
-		long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, Color.valueOf(color.toUpperCase()));
+		long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
 		createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, serialNumber);
 		return Response.accepted(createObjectBuilder.build()).build();
 	}

@@ -42,6 +42,7 @@ import se.hirt.examples.robotfactory.rest.RobotTypeResource;
 import se.hirt.examples.robotfactory.rest.RobotTypesResource;
 import se.hirt.examples.robotfactory.rest.FactoryResource;
 import se.hirt.examples.robotfactory.rest.HelloRest;
+import se.hirt.examples.robotfactory.rest.PaintsResource;
 
 /**
  * Programmatic adding of our specific REST resources.
@@ -56,6 +57,7 @@ public class ResourceLoader extends Application {
 		classes.add(HelloRest.class);
 		classes.add(RobotTypeResource.class);
 		classes.add(RobotTypesResource.class);
+		classes.add(PaintsResource.class);
 		classes.add(FactoryResource.class);
 		classes.add(JsonBindingProvider.class);
 		return classes;

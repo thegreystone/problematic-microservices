@@ -33,6 +33,7 @@
 		<tomcat.version>8.5.23</tomcat.version>
 		<jersey.version>2.27</jersey.version>
 		<jaxb.version>2.4.0-b180725.0644</jaxb.version>
+		<okhttp.version>3.7.0</okhttp.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,6 +84,21 @@
 			<artifactId>jersey-media-json-binding</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>se.hirt.examples</groupId>
+			<artifactId>robot-factory-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>se.hirt.examples</groupId>
+			<artifactId>customer-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>customer-service</finalName>
@@ -99,7 +115,7 @@
 							<mainClass>se.hirt.examples.robotorder.Main</mainClass>
 							<id>robotOrderService</id>
 						</program>
-				</programs>
+					</programs>
 				</configuration>
 				<executions>
 					<execution>

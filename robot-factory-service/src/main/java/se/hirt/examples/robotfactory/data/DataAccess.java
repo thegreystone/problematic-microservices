@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Simplified data access. FIXME: Store in couch base/cassandra/whatever:
+ * Simplified data access. FIXME: Store in couch base/cassandra/mongo/whatever
  * 
  * @author Marcus Hirt
  */

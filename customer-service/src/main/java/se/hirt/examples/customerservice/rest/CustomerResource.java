@@ -81,7 +81,7 @@ public class CustomerResource {
 		}
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(CustomerKeys.ID, String.valueOf(customer.getId()));
+		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(customer.getId()));
 		builder.add(CustomerKeys.FULL_NAME, customer.getFullName());
 		builder.add(CustomerKeys.PHONE_NUMBER, customer.getPhoneNumber());
 		return builder.build();
@@ -90,7 +90,7 @@ public class CustomerResource {
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response putUser(JsonObject jsonEntity) {
-		String jsonId = jsonEntity.getString(CustomerKeys.ID);
+		String jsonId = jsonEntity.getString(CustomerKeys.CUSTOMER_ID);
 
 		if ((jsonId != null) && !jsonId.equals(id)) {
 			return Response.status(409).entity("customerIds differ!\n").build();

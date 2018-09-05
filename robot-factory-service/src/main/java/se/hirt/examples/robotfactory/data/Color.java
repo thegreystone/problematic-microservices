@@ -9,5 +9,14 @@ package se.hirt.examples.robotfactory.data;
  * @author Marcus Hirt
  */
 public enum Color {
-	RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, BLACK, WHITE, PINK
+	RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, BLACK, WHITE, PINK;
+
+	@Override
+	public String toString() {
+		return super.toString().toLowerCase();
+	}
+	
+	public static Color fromString(String colorName) {
+		return valueOf(colorName.toUpperCase());
+	}
 }

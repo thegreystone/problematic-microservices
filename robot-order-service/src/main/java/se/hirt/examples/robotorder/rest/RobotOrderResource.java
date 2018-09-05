@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory.rest;
+package se.hirt.examples.robotorder.rest;
 
 import javax.json.JsonObject;
 import javax.ws.rs.Consumes;
@@ -43,63 +43,63 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import se.hirt.examples.robotfactory.data.DataAccess;
-import se.hirt.examples.robotfactory.data.RobotType;
+import se.hirt.examples.robotorder.data.DataAccess;
+import se.hirt.examples.robotorder.data.RobotOrder;
 
 /**
- * Resource for individual customers.
+ * Resource for orders being processed.
  * 
  * @author Marcus Hirt
  */
-public class RobotTypeResource {
+public class RobotOrderResource {
 
 	private final UriInfo uriInfo;
-	private final String robotTypeId;
-	private final RobotType robotType;
+	private final Long robotOrderId;
+	private final RobotOrder robotOrder;
 
-	public RobotTypeResource(UriInfo uriInfo, String id) {
+	public RobotOrderResource(UriInfo uriInfo, Long id) {
 		this.uriInfo = uriInfo;
-		this.robotTypeId = id;
-		this.robotType = DataAccess.getRobotTypeById(id);
+		this.robotOrderId = id;
+		this.robotOrder = DataAccess.getRobotOrderById(id);
 	}
 
 	public UriInfo getUriInfo() {
 		return uriInfo;
 	}
 
-	public String getRobotTypeId() {
-		return robotTypeId;
+	public Long getRobotTypeId() {
+		return robotOrderId;
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public JsonObject getRobotType() {
-		if (robotType == null) {
-			throw new NotFoundException("robotType with id " + robotTypeId + " does not exist!");
+		if (robotOrder == null) {
+			throw new NotFoundException("robotOrder with id " + robotOrderId + " does not exist!");
 		}
-		return robotType.toJSon().build();
+		return robotOrder.toJSon().build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putRobotType(JsonObject jsonEntity) {
-		RobotType newType = RobotType.fromJSon(jsonEntity);
+	public Response putRobotOrder(JsonObject jsonEntity) {
+		RobotOrder newOrder = RobotOrder.fromJSon(jsonEntity);
 
-		if ((newType.getTypeId() != null) && !newType.getTypeId().equals(robotTypeId)) {
-			return Response.status(409).entity("customerIds differ!\n").build();
+		if ((newOrder.getOrderId() != null) && !newOrder.getOrderId().equals(robotOrderId)) {
+			return Response.status(409).entity("orderIds differ!\n").build();
 		}
-		DataAccess.addRobotType(newType);
+		DataAccess.addRobotOrder(newOrder);
 		return Response.noContent().build();
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteRobotType() {
-		if (robotType == null) {
-			throw new NotFoundException("robotTypeId " + robotTypeId + "does not exist!");
+		if (robotOrder == null) {
+			throw new NotFoundException("orderId " + robotOrderId + "does not exist!");
 		}
-		DataAccess.removeRobotType(robotType);
-		return Response.status(Status.OK).entity(robotType).build();
+		DataAccess.removeRobotOrder(robotOrder);
+		return Response.status(Status.OK).entity(robotOrder).build();
 	}
 
 }

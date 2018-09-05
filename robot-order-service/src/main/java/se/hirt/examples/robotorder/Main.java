@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory;
+package se.hirt.examples.robotorder;
 
 import java.io.File;
 
@@ -44,13 +44,15 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import se.hirt.examples.robotfactory.ResourceLoader;
+
 /**
  * Launches the embedded Tomcat for the customers service.
  * 
  * @author Marcus Hirt
  */
 public class Main {
-	private static final String DEFAULT_PORT = "8082";
+	private static final String DEFAULT_PORT = "8083";
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws ServletException, LifecycleException {

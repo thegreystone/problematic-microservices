@@ -29,38 +29,23 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory.utils;
+package se.hirt.examples.robotorder.logging;
 
-import se.hirt.examples.robotfactory.logging.Logger;
+import java.time.LocalDateTime;
+
+import se.hirt.examples.robotorder.utils.Utils;
 
 /**
- * Toolkit
+ * Emulating a logger that takes a bit of time to complete.
  * 
  * @author Marcus Hirt
  */
-public class Utils {
-	private Utils() {
-		throw new UnsupportedOperationException("Tookit!");
+public class Logger {
+	public synchronized static void log(String message) {
+		// The sleep is there to simulate a logger that could take a bit of 
+		// time to complete. Do not touch! ;)
+		// Removing the sleep is not the solution you should be looking for. 
+		Utils.sleep(200);
+		System.out.println(String.format("%s: %s", LocalDateTime.now(), message));
 	}
-
-	public static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			Logger.log(e.getMessage());
-		}
-	}
-
-	public static String errorAsJSonString(Throwable t) {
-		return errorAsJSonString(t.getMessage());
-	}
-
-	public static String messageActionAsJSonString(String message) {
-		return String.format("{\"action\":\"message\",\"text\":\"%s\"}", message);
-	}
-
-	public static String errorAsJSonString(String message) {
-		return String.format("{\"error\":\"%s\"}", message);
-	}
-
 }

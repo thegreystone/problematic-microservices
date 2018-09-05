@@ -29,56 +29,43 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotfactory.rest;
+package se.hirt.examples.robotorder;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import se.hirt.examples.robotfactory.data.DataAccess;
-import se.hirt.examples.robotfactory.data.RobotType;
+import se.hirt.examples.customerservice.data.Customer;
+import se.hirt.examples.robotfactory.data.Robot;
+import se.hirt.examples.robotorder.data.RobotOrder;
 
 /**
- * Rest API for customers.
+ * Contains the orderId and all the ordered robots.
  * 
  * @author Marcus Hirt
  */
-@Path("/robottypes/")
-public class RobotTypesResource {
-	@Context
-	UriInfo uriInfo;
+public class RealizedOrder {
+	private final RobotOrder order;
+	private final Customer customer;
+	private final Robot[] robots;
+	private final Throwable error;
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public JsonArray list() {
-		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-		for (RobotType type : DataAccess.getAvailableRobotTypes()) {
-			arrayBuilder.add(type.toJSon());
-		}
-		return arrayBuilder.build();
+	public RealizedOrder(RobotOrder order, Customer customer, Robot[] robots, Throwable error) {
+		this.order = order;
+		this.customer = customer;
+		this.robots = robots;
+		this.error = error;
 	}
 
-	@PUT
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putRobotType(JsonObject jsonEntity) {
-		RobotType robotType = RobotType.fromJSon(jsonEntity);
-		DataAccess.addRobotType(robotType);
-		return Response.accepted(robotType.toJSon().build().toString()).build();
+	public RobotOrder getOrder() {
+		return order;
 	}
 
-	@Path("{typeId}/")
-	public RobotTypeResource getCustomer(@PathParam("typeId") String customerId) {
-		return new RobotTypeResource(uriInfo, customerId);
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public Robot[] getRobots() {
+		return robots;
+	}
+
+	public Throwable getError() {
+		return error;
 	}
 }

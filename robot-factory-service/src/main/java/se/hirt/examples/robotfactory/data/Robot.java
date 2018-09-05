@@ -47,6 +47,7 @@ import javax.json.JsonObjectBuilder;
 public class Robot implements Serializable {
 	private static final long serialVersionUID = -7669748978172006987L;
 	public final static String KEY_SERIAL_NUMBER = "serialNumber";
+	public final static Long INVALID_SERIAL_ID = -1L;
 	public static final String KEY_COLOR = "color";
 
 	private final long serialNumber;
@@ -119,7 +120,7 @@ public class Robot implements Serializable {
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
 		builder.add(KEY_SERIAL_NUMBER, String.valueOf(getSerialNumber()));
 		builder.add(RobotType.KEY_ROBOT_TYPE, getRobotType());
-		builder.add(KEY_COLOR, getColor().name().toLowerCase());
+		builder.add(KEY_COLOR, getColor().toString());
 		return builder;
 	}
 
