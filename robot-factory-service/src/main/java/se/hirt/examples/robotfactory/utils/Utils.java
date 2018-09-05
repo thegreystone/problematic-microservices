@@ -52,11 +52,15 @@ public class Utils {
 	}
 
 	public static String errorAsJSonString(Throwable t) {
-		return String.format("{\"error\":\"%s\"", t.getMessage());
+		return errorAsJSonString(t.getMessage());
 	}
 
 	public static String messageActionAsJSonString(String message) {
 		return String.format("{\"action\":\"message\",\"text\":\"%s\"}", message);
+	}
+
+	public static String errorAsJSonString(String message) {
+		return String.format("{\"error\":\"%s\"}", message);
 	}
 
 }

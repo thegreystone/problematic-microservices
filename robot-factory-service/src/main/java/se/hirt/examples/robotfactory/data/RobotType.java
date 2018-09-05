@@ -45,7 +45,7 @@ import javax.json.JsonObjectBuilder;
  */
 public final class RobotType implements Serializable {
 	private static final long serialVersionUID = -3012533094235973369L;
-	public final static String KEY_ROBOT_TYPE = "serialNumber";
+	public final static String KEY_ROBOT_TYPE = "robotTypeId";
 	public final static String KEY_ROBOT_DESCRIPTION = "description";
 
 	private final String typeId;

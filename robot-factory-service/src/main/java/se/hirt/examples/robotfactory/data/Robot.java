@@ -47,13 +47,16 @@ import javax.json.JsonObjectBuilder;
 public class Robot implements Serializable {
 	private static final long serialVersionUID = -7669748978172006987L;
 	public final static String KEY_SERIAL_NUMBER = "serialNumber";
+	public static final String KEY_COLOR = "color";
 
 	private final long serialNumber;
 	private final String robotType;
+	private final Color color;
 
-	Robot(long serialNumber, String robotType) {
+	public Robot(long serialNumber, String robotType, Color color) {
 		this.serialNumber = serialNumber;
 		this.robotType = robotType;
+		this.color = color;
 	}
 
 	public long getSerialNumber() {
@@ -62,6 +65,10 @@ public class Robot implements Serializable {
 
 	public String getRobotType() {
 		return robotType;
+	}
+
+	public Color getColor() {
+		return color;
 	}
 
 	@Override
@@ -103,14 +110,16 @@ public class Robot implements Serializable {
 
 		long serial = jsonNumberSerialNumber.longValueExact();
 		String type = json.getString(RobotType.KEY_ROBOT_TYPE);
-		return new Robot(Long.valueOf(serial), type);
+		Color color = Color.valueOf(json.getString(KEY_COLOR));
+		return new Robot(Long.valueOf(serial), type, color);
 	}
 
-	public static JsonObjectBuilder toJSon(Robot robot) {
+	public JsonObjectBuilder toJSon() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(KEY_SERIAL_NUMBER, String.valueOf(robot.getSerialNumber()));
-		builder.add(RobotType.KEY_ROBOT_TYPE, robot.getRobotType());
+		builder.add(KEY_SERIAL_NUMBER, String.valueOf(getSerialNumber()));
+		builder.add(RobotType.KEY_ROBOT_TYPE, getRobotType());
+		builder.add(KEY_COLOR, getColor().name().toLowerCase());
 		return builder;
 	}
 

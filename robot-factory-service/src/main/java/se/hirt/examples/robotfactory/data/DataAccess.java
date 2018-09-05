@@ -34,7 +34,6 @@ package se.hirt.examples.robotfactory.data;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Simplified data access. FIXME: Store in couch base/cassandra/whatever:
@@ -43,14 +42,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DataAccess {
 	private final static Map<String, RobotType> ROBOT_TYPES = new HashMap<>();
-	private final static AtomicLong SERIAL_ID_GENERATOR = new AtomicLong();
 
 	static {
 		addDefaultRobotTypes();
-	}
-
-	public static Robot createRobot(String robotType) {
-		return new Robot(SERIAL_ID_GENERATOR.getAndIncrement(), robotType);
 	}
 
 	public static Collection<RobotType> getAvailableRobotTypes() {

@@ -74,7 +74,7 @@ public class Main {
 
 		// Add servlet that will register Jersey REST resources
 		Tomcat.addServlet(ctx, "jersey-container-servlet", resourceConfig());
-		ctx.addServletMapping("/rest/*", "jersey-container-servlet");
+		ctx.addServletMapping("/*", "jersey-container-servlet");
 
 		tomcat.start();
 		tomcat.getServer().await();
