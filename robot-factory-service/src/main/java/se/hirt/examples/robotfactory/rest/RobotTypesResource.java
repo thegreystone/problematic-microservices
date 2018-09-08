@@ -50,7 +50,7 @@ import se.hirt.examples.robotfactory.data.DataAccess;
 import se.hirt.examples.robotfactory.data.RobotType;
 
 /**
- * Rest API for customers.
+ * Rest API for robot types.
  * 
  * @author Marcus Hirt
  */

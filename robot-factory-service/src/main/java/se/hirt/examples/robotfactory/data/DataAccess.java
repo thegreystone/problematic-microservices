@@ -51,13 +51,15 @@ public class DataAccess {
 		return ROBOT_TYPES.values();
 	}
 
+	/*
+	 * To make it easier to get going, we pre-register a bunch of available robot types.
+	 */
 	private static void addDefaultRobotTypes() {
 		createRobotType("Wall-E", "Cute little cubic garbage disposal robot.");
 		createRobotType("EVE", "Advanced little robot. Specializes in retrieval of plants.");
 		createRobotType("Coff-E", "3D printed robot with laser range finder. Looks a bit like Wall-E.");
 		createRobotType("T-800", "Terminator robot. Please read the legal disclaimers and owner responsibilities.");
-		createRobotType("T-1000",
-				"Terminator robot that can change shape. Please read the legal disclaimers and owner responsibilities.");
+		createRobotType("T-1000", "Terminator robot that can change shape. Please read the legal disclaimers and owner responsibilities.");
 		createRobotType("R2-D2", "Versatile astromech droid.");
 		createRobotType("BB-8", "Spherical astromech droid.");
 		createRobotType("Baymax", "Inflatable medical droid.");

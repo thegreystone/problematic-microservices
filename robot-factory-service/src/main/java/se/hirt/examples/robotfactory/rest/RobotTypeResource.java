@@ -47,7 +47,7 @@ import se.hirt.examples.robotfactory.data.DataAccess;
 import se.hirt.examples.robotfactory.data.RobotType;
 
 /**
- * Resource for individual customers.
+ * Resource for individual robot types.
  * 
  * @author Marcus Hirt
  */

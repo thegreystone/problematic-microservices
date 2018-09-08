@@ -39,7 +39,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
 /**
- * A simple customer record.
+ * Description of a type of robot. Handy when ordering one.
  * 
  * @author Marcus Hirt
  */
