@@ -137,12 +137,12 @@ public class Customer implements Serializable {
 		return new Customer(Long.valueOf(id), fullName, phoneNumber);
 	}
 
-	public static JsonObjectBuilder toJSon(Customer customer) {
+	public JsonObjectBuilder toJSon() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(customer.getId()));
-		builder.add(CustomerKeys.FULL_NAME, customer.getFullName());
-		builder.add(CustomerKeys.PHONE_NUMBER, customer.getPhoneNumber());
+		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(getId()));
+		builder.add(CustomerKeys.FULL_NAME, getFullName());
+		builder.add(CustomerKeys.PHONE_NUMBER, getPhoneNumber());
 		return builder;
 	}
 }

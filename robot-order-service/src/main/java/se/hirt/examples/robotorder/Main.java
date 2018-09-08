@@ -44,10 +44,8 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import se.hirt.examples.robotfactory.ResourceLoader;
-
 /**
- * Launches the embedded Tomcat for the customers service.
+ * Launches the embedded Tomcat for the order service.
  * 
  * @author Marcus Hirt
  */

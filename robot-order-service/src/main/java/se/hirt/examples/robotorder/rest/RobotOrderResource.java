@@ -52,7 +52,6 @@ import se.hirt.examples.robotorder.data.RobotOrder;
  * @author Marcus Hirt
  */
 public class RobotOrderResource {
-
 	private final UriInfo uriInfo;
 	private final Long robotOrderId;
 	private final RobotOrder robotOrder;

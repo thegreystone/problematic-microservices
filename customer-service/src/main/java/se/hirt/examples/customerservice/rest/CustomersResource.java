@@ -88,7 +88,7 @@ public class CustomersResource {
 		// and take care of JSON serialization ourselves.
 		try {
 			Customer customer = createCustomer(jsonEntity);
-			return Response.accepted(Customer.toJSon(customer).build().toString()).build();
+			return Response.accepted(customer.toJSon().build().toString()).build();
 		} catch (ValidationException e) {
 			return Response.status(Response.Status.NOT_ACCEPTABLE.getStatusCode(), e.getMessage()).build();
 		}

@@ -31,9 +31,14 @@
  */
 package se.hirt.examples.robotorder;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+
 import se.hirt.examples.customerservice.data.Customer;
 import se.hirt.examples.robotfactory.data.Robot;
 import se.hirt.examples.robotorder.data.RobotOrder;
+import se.hirt.examples.robotorder.utils.Utils;
 
 /**
  * Contains the orderId and all the ordered robots.
@@ -41,6 +46,9 @@ import se.hirt.examples.robotorder.data.RobotOrder;
  * @author Marcus Hirt
  */
 public class RealizedOrder {
+	public final static String KEY_ROBOTS = "robots";
+	public final static String KEY_CUSTOMER = "customer";
+	public final static String KEY_ORDER = "order";
 	private final RobotOrder order;
 	private final Customer customer;
 	private final Robot[] robots;
@@ -67,5 +75,24 @@ public class RealizedOrder {
 
 	public Throwable getError() {
 		return error;
+	}
+
+	public JsonObjectBuilder toJSon() {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add(KEY_CUSTOMER, customer.toJSon());
+		builder.add(KEY_ORDER, order.toJSon());
+		builder.add(KEY_ROBOTS, serializeRobotsToJSon());
+		if (error != null) {
+			builder.add(Utils.KEY_ERROR, Utils.errorAsJSon(error));
+		}
+		return builder;
+	}
+
+	private JsonArrayBuilder serializeRobotsToJSon() {
+		JsonArrayBuilder builder = Json.createArrayBuilder();
+		for (Robot robot : robots) {
+			builder.add(robot.toJSon());
+		}
+		return builder;
 	}
 }

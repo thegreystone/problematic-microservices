@@ -31,6 +31,9 @@
  */
 package se.hirt.examples.robotorder.utils;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+
 import se.hirt.examples.robotorder.logging.Logger;
 
 /**
@@ -39,6 +42,12 @@ import se.hirt.examples.robotorder.logging.Logger;
  * @author Marcus Hirt
  */
 public class Utils {
+	public static final String KEY_ERROR = "error";
+	public static final String KEY_ACTION = "action";
+
+	private static final String FORMAT_ACTION = "{\"" + KEY_ACTION + "\":\"message\",\"text\":\"%s\"}";
+	private static final String FORMAT_ERROR = "{\"" + KEY_ERROR + "\":\"%s\"}";
+
 	private Utils() {
 		throw new UnsupportedOperationException("Tookit!");
 	}
@@ -56,11 +65,17 @@ public class Utils {
 	}
 
 	public static String messageActionAsJSonString(String message) {
-		return String.format("{\"action\":\"message\",\"text\":\"%s\"}", message);
+		return String.format(FORMAT_ACTION, message);
 	}
 
 	public static String errorAsJSonString(String message) {
-		return String.format("{\"error\":\"%s\"}", message);
+		return String.format(FORMAT_ERROR, message);
+	}
+
+	public static JsonObjectBuilder errorAsJSon(Throwable error) {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add(KEY_ERROR, error.toString());
+		return builder;
 	}
 
 }

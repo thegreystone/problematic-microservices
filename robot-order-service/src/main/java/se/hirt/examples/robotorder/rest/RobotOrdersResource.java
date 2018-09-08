@@ -48,6 +48,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,6 +58,7 @@ import javax.ws.rs.core.UriInfo;
 import se.hirt.examples.customerservice.rest.CustomerKeys;
 import se.hirt.examples.robotfactory.utils.Utils;
 import se.hirt.examples.robotorder.OrderManager;
+import se.hirt.examples.robotorder.RealizedOrder;
 import se.hirt.examples.robotorder.data.DataAccess;
 import se.hirt.examples.robotorder.data.RobotOrder;
 import se.hirt.examples.robotorder.data.RobotOrderLineItem;
@@ -99,7 +101,7 @@ public class RobotOrdersResource {
 	}
 
 	@POST
-	@Path("/orders/new")
+	@Path("/new")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createNewOrder(JsonObject jsonEntity) {
 		JsonNumber number = jsonEntity.getJsonNumber(CustomerKeys.CUSTOMER_ID);
@@ -115,5 +117,20 @@ public class RobotOrdersResource {
 				lineItems.toArray(new RobotOrderLineItem[0]));
 		OrderManager.getInstance().dispatchOrder(newOrder);
 		return Response.accepted(newOrder).build();
+	}
+
+	@GET
+	@Path("/pickup")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response buildRobot(@QueryParam(RobotOrder.KEY_ORDER_ID) Long orderId) {
+		if (orderId == null) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity(Utils.errorAsJSonString(RobotOrder.KEY_ORDER_ID + " must not be null!")).build();
+		}
+		RealizedOrder robotOrder = OrderManager.getInstance().pickUpOrder(orderId);
+		if (robotOrder == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		return Response.ok(robotOrder.toJSon().build()).build();
 	}
 }

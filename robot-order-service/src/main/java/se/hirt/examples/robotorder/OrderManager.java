@@ -69,7 +69,7 @@ import se.hirt.examples.robotorder.data.RobotOrder;
 import se.hirt.examples.robotorder.data.RobotOrderLineItem;
 
 /**
- * Factory producing robots.
+ * Order manager, tracking and fulfilling robot orders.
  * 
  * @author Marcus Hirt
  */
