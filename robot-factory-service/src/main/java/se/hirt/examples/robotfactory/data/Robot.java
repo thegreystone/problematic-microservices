@@ -35,7 +35,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 
 import javax.json.Json;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
@@ -103,13 +102,13 @@ public class Robot implements Serializable {
 	}
 
 	public static Robot fromJSon(JsonObject json) {
-		JsonNumber jsonNumberSerialNumber = json.getJsonNumber(KEY_SERIAL_NUMBER);
+		String serialNumberStr = json.getString(KEY_SERIAL_NUMBER);
 
-		if ((jsonNumberSerialNumber == null)) {
+		if ((serialNumberStr == null)) {
 			throw new IllegalArgumentException("Must have a serial number to create robot object from JSon");
 		}
 
-		long serial = jsonNumberSerialNumber.longValueExact();
+		long serial = Long.parseLong(serialNumberStr);
 		String type = json.getString(RobotType.KEY_ROBOT_TYPE);
 		Color color = Color.valueOf(json.getString(KEY_COLOR));
 		return new Robot(Long.valueOf(serial), type, color);

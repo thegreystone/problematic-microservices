@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
@@ -74,11 +75,11 @@ import se.hirt.examples.robotorder.data.RobotOrderLineItem;
  * @author Marcus Hirt
  */
 public class OrderManager {
-	private final static String ROBOT_FACTORY_SERVICE_LOCATION;
 	private final static String CUSTOMER_SERVICE_LOCATION;
+	private final static String ROBOT_FACTORY_SERVICE_LOCATION;
 
+	private final static String DEFAULT_CUSTOMER_SERVICE_LOCATION = "http://localhost:8081";
 	private final static String DEFAULT_ROBOT_FACTORY_SERVICE_LOCATION = "http://localhost:8082";
-	private final static String DEFAULT_CUSTOMER_SERVICE_LOCATION = "http://localhost:8083";
 
 	private final static OrderManager INSTANCE = new OrderManager();
 	private final static int DEFAULT_NUMBER_OF_ORDER_DISPATCHERS = 4;
@@ -239,6 +240,9 @@ public class OrderManager {
 			Response res = null;
 			try {
 				res = httpClient.newCall(req).execute();
+				if (res.code() == Status.NOT_FOUND.getStatusCode()) {
+					throw new ValidationException("Could not find customer " + customerId);
+				}
 				return Customer.fromJSon(res.body().string());
 			} catch (IOException exc) {
 				throw new ValidationException("Failed to validate customer");

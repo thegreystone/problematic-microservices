@@ -55,7 +55,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import se.hirt.examples.customerservice.rest.CustomerKeys;
+import se.hirt.examples.customerservice.data.Customer;
 import se.hirt.examples.robotfactory.utils.Utils;
 import se.hirt.examples.robotorder.OrderManager;
 import se.hirt.examples.robotorder.RealizedOrder;
@@ -104,7 +104,7 @@ public class RobotOrdersResource {
 	@Path("/new")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createNewOrder(JsonObject jsonEntity) {
-		JsonNumber number = jsonEntity.getJsonNumber(CustomerKeys.CUSTOMER_ID);
+		JsonNumber number = jsonEntity.getJsonNumber(Customer.KEY_CUSTOMER_ID);
 		if (number == null) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(Utils.errorAsJSonString("Request did not specify customer!")).build();

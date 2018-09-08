@@ -45,7 +45,7 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-import se.hirt.examples.customerservice.rest.CustomerKeys;
+import se.hirt.examples.customerservice.data.Customer;
 
 /**
  * A simple customer record.
@@ -113,7 +113,7 @@ public class RobotOrder implements Serializable {
 			throw new IllegalArgumentException("Must have an orderId to create an order");
 		}
 		
-		JsonNumber jsonCustomerId = json.getJsonNumber(CustomerKeys.CUSTOMER_ID);
+		JsonNumber jsonCustomerId = json.getJsonNumber(Customer.KEY_CUSTOMER_ID);
 		if ((jsonCustomerId == null)) {
 			throw new IllegalArgumentException("Must have an customerId to create an order");
 		}

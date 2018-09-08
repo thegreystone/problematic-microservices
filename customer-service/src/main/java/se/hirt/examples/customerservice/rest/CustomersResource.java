@@ -73,9 +73,9 @@ public class CustomersResource {
 			// URI userUri = ub.path(String.valueOf(customer.getCustomerId())).build();
 			JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
 			// Can't trust the transfer of longs, unfortunately.
-			objectBuilder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(customer.getId()));
-			objectBuilder.add(CustomerKeys.FULL_NAME, customer.getFullName());
-			objectBuilder.add(CustomerKeys.PHONE_NUMBER, customer.getPhoneNumber());
+			objectBuilder.add(Customer.KEY_CUSTOMER_ID, String.valueOf(customer.getId()));
+			objectBuilder.add(Customer.KEY_FULL_NAME, customer.getFullName());
+			objectBuilder.add(Customer.KEY_PHONE_NUMBER, customer.getPhoneNumber());
 			arrayBuilder.add(objectBuilder);
 		}
 		return arrayBuilder.build();
@@ -95,8 +95,8 @@ public class CustomersResource {
 	}
 
 	private static Customer createCustomer(JsonObject jsonEntity) throws ValidationException {
-		String fullName = jsonEntity.getString(CustomerKeys.FULL_NAME);
-		String phoneNumber = jsonEntity.getString(CustomerKeys.PHONE_NUMBER);
+		String fullName = jsonEntity.getString(Customer.KEY_FULL_NAME);
+		String phoneNumber = jsonEntity.getString(Customer.KEY_PHONE_NUMBER);
 		Customer.validate(fullName, phoneNumber);
 		return DataAccess.createCustomer(fullName, phoneNumber);
 	}

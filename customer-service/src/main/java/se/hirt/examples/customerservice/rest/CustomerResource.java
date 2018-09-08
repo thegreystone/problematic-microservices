@@ -54,7 +54,6 @@ import se.hirt.examples.customerservice.data.DataAccess;
  * @author Marcus Hirt
  */
 public class CustomerResource {
-
 	private final UriInfo uriInfo;
 	private final String id;
 	private final Customer customer;
@@ -81,16 +80,16 @@ public class CustomerResource {
 		}
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(customer.getId()));
-		builder.add(CustomerKeys.FULL_NAME, customer.getFullName());
-		builder.add(CustomerKeys.PHONE_NUMBER, customer.getPhoneNumber());
+		builder.add(Customer.KEY_CUSTOMER_ID, String.valueOf(customer.getId()));
+		builder.add(Customer.KEY_FULL_NAME, customer.getFullName());
+		builder.add(Customer.KEY_PHONE_NUMBER, customer.getPhoneNumber());
 		return builder.build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response putUser(JsonObject jsonEntity) {
-		String jsonId = jsonEntity.getString(CustomerKeys.CUSTOMER_ID);
+		String jsonId = jsonEntity.getString(Customer.KEY_CUSTOMER_ID);
 
 		if ((jsonId != null) && !jsonId.equals(id)) {
 			return Response.status(409).entity("customerIds differ!\n").build();
@@ -99,8 +98,8 @@ public class CustomerResource {
 		// If we have no customer, this is an insert, otherwise an update
 		final boolean newRecord = (null == customer);
 
-		String fullName = jsonEntity.getString(CustomerKeys.FULL_NAME);
-		String phoneNumber = jsonEntity.getString(CustomerKeys.PHONE_NUMBER);
+		String fullName = jsonEntity.getString(Customer.KEY_FULL_NAME);
+		String phoneNumber = jsonEntity.getString(Customer.KEY_PHONE_NUMBER);
 
 		if (newRecord) {
 			// We're allowing inserts here, but ID will be generated (i.e. we will ignore 

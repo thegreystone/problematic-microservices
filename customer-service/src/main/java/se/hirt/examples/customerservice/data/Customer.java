@@ -35,11 +35,8 @@ import java.io.Serializable;
 import java.io.StringReader;
 
 import javax.json.Json;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-
-import se.hirt.examples.customerservice.rest.CustomerKeys;
 
 /**
  * A simple customer record.
@@ -48,6 +45,10 @@ import se.hirt.examples.customerservice.rest.CustomerKeys;
  */
 public class Customer implements Serializable {
 	private static final long serialVersionUID = -7669748978172006987L;
+
+	public final static String KEY_CUSTOMER_ID = "customerId";
+	public final static String KEY_FULL_NAME = "fullName";
+	public final static String KEY_PHONE_NUMBER = "phoneNumber";
 
 	private final long id;
 	private final String fullName;
@@ -125,24 +126,24 @@ public class Customer implements Serializable {
 	}
 
 	public static Customer fromJSon(JsonObject json) {
-		JsonNumber jsonNumberId = json.getJsonNumber(CustomerKeys.CUSTOMER_ID);
+		String customerIdStr = json.getString(Customer.KEY_CUSTOMER_ID);
 
-		if ((jsonNumberId == null)) {
+		if ((customerIdStr == null)) {
 			throw new IllegalArgumentException("Must have ID to create customer object from JSon");
 		}
 
-		long id = jsonNumberId.longValueExact();
-		String fullName = json.getString(CustomerKeys.FULL_NAME);
-		String phoneNumber = json.getString(CustomerKeys.PHONE_NUMBER);
+		long id = Long.parseLong(customerIdStr);
+		String fullName = json.getString(Customer.KEY_FULL_NAME);
+		String phoneNumber = json.getString(Customer.KEY_PHONE_NUMBER);
 		return new Customer(Long.valueOf(id), fullName, phoneNumber);
 	}
 
 	public JsonObjectBuilder toJSon() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
-		builder.add(CustomerKeys.CUSTOMER_ID, String.valueOf(getId()));
-		builder.add(CustomerKeys.FULL_NAME, getFullName());
-		builder.add(CustomerKeys.PHONE_NUMBER, getPhoneNumber());
+		builder.add(Customer.KEY_CUSTOMER_ID, String.valueOf(getId()));
+		builder.add(Customer.KEY_FULL_NAME, getFullName());
+		builder.add(Customer.KEY_PHONE_NUMBER, getPhoneNumber());
 		return builder;
 	}
 }

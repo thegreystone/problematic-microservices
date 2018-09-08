@@ -27,7 +27,7 @@ public final class RobotOrderLineItem {
 
 	public static RobotOrderLineItem fromJSon(JsonObject json) {
 		String type = json.getString(RobotType.KEY_ROBOT_TYPE);
-		Color color = Color.valueOf(json.getString(Robot.KEY_COLOR));
+		Color color = Color.fromString(json.getString(Robot.KEY_COLOR));
 		return new RobotOrderLineItem(type, color);
 	}
 
@@ -43,4 +43,8 @@ public final class RobotOrderLineItem {
 		return color;
 	}
 
+	public String toString() {
+		return String.format("LineItem [%s:%s, %s:%s]", RobotType.KEY_ROBOT_TYPE, getRobotTypeId(), Robot.KEY_COLOR,
+				getColor());
+	}
 }
