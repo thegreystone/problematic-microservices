@@ -35,6 +35,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -46,6 +47,7 @@ import javax.ws.rs.core.Response.Status;
 
 import se.hirt.examples.robotfactory.Factory;
 import se.hirt.examples.robotfactory.data.Color;
+import se.hirt.examples.robotfactory.data.DataAccess;
 import se.hirt.examples.robotfactory.data.Robot;
 import se.hirt.examples.robotfactory.data.RobotType;
 import se.hirt.examples.robotfactory.utils.Utils;
@@ -72,12 +74,19 @@ public class FactoryResource {
 	@Path("/buildrobot")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response buildRobot(
-		@QueryParam(RobotType.KEY_ROBOT_TYPE) String robotTypeId, @QueryParam(Robot.KEY_COLOR) String color) {
+		@FormParam(RobotType.KEY_ROBOT_TYPE) String robotTypeId, @FormParam(Robot.KEY_COLOR) String color) {
 		JsonObjectBuilder createObjectBuilder = Json.createObjectBuilder();
 
 		if (robotTypeId == null) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(Utils.errorAsJSonString(RobotType.KEY_ROBOT_TYPE + " must not be null!")).build();
+		}
+
+		RobotType robotType = DataAccess.getRobotTypeById(robotTypeId);
+		if (robotType == null) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity(Utils.errorAsJSonString(RobotType.KEY_ROBOT_TYPE + ":" + robotTypeId + " is unknown!"))
+					.build();
 		}
 
 		if (color == null) {

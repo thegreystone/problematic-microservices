@@ -108,7 +108,7 @@ public class Customer implements Serializable {
 			throw new ValidationException("Empty fullName!");
 		}
 		if (!fullName.contains(" ")) {
-			throw new ValidationException("Must have first and last name!");
+			throw new ValidationException("Must have first and last name! Full name was: " + fullName);
 		}
 	}
 

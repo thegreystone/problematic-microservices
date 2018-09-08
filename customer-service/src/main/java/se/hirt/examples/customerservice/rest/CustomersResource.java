@@ -31,9 +31,6 @@
  */
 package se.hirt.examples.customerservice.rest;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -53,6 +50,7 @@ import javax.ws.rs.core.UriInfo;
 import se.hirt.examples.customerservice.data.Customer;
 import se.hirt.examples.customerservice.data.DataAccess;
 import se.hirt.examples.customerservice.data.ValidationException;
+import se.hirt.examples.customerservice.utils.Utils;
 
 /**
  * Rest API for customers.
@@ -106,14 +104,16 @@ public class CustomersResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response putUsers(JsonObject jsonEntity) {
 		JsonArray jsonArray = jsonEntity.getJsonArray("customers");
-		List<Customer> customers = jsonArray.stream().map((jsonValue) -> {
+		final JsonArrayBuilder result = Json.createArrayBuilder();
+		jsonArray.forEach((jsonValue) -> {
 			try {
-				return createCustomer(jsonValue.asJsonObject());
+				Customer c = createCustomer(jsonValue.asJsonObject());
+				result.add(c.toJSon());
 			} catch (ValidationException e) {
-				return null;
+				result.add(Utils.errorAsJSon(e));
 			}
-		}).collect(Collectors.toList());
-		return Response.accepted(customers).build();
+		});
+		return Response.accepted(result.build()).build();
 	}
 
 	@Path("{customerId}/")

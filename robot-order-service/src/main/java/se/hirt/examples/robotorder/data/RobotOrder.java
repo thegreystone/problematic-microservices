@@ -108,26 +108,27 @@ public class RobotOrder implements Serializable {
 	}
 
 	public static RobotOrder fromJSon(JsonObject json) {
-		JsonNumber jsonNumberOrderId = json.getJsonNumber(KEY_ORDER_ID);
-		if ((jsonNumberOrderId == null)) {
+		String jsonOrderIdStr = json.getString(KEY_ORDER_ID);
+		if ((jsonOrderIdStr == null)) {
 			throw new IllegalArgumentException("Must have an orderId to create an order");
 		}
-		
+
 		JsonNumber jsonCustomerId = json.getJsonNumber(Customer.KEY_CUSTOMER_ID);
 		if ((jsonCustomerId == null)) {
 			throw new IllegalArgumentException("Must have an customerId to create an order");
 		}
-		
-		long orderId = jsonNumberOrderId.longValueExact();
+
+		long orderId = Long.valueOf(jsonOrderIdStr);
 		long customerId = jsonCustomerId.longValueExact();
 		ZonedDateTime placementTime = ZonedDateTime.parse(json.getString(KEY_PLACEMENT_TIME));
-		RobotOrderLineItem [] lineItems = parseLineItems(json.getJsonArray(KEY_LINE_ITEMS));
-		
+		RobotOrderLineItem[] lineItems = parseLineItems(json.getJsonArray(KEY_LINE_ITEMS));
+
 		return new RobotOrder(orderId, customerId, placementTime, lineItems);
 	}
 
 	private static RobotOrderLineItem[] parseLineItems(JsonArray jsonArray) {
-		List<RobotOrderLineItem> items = jsonArray.stream().map(RobotOrderLineItem::fromJSon).collect(Collectors.toList());
+		List<RobotOrderLineItem> items = jsonArray.stream().map(RobotOrderLineItem::fromJSon)
+				.collect(Collectors.toList());
 		return items.toArray(new RobotOrderLineItem[0]);
 	}
 
@@ -136,12 +137,12 @@ public class RobotOrder implements Serializable {
 		// Cannot use longs since, guess what, JavaScript will round them. ;)
 		builder.add(KEY_ORDER_ID, String.valueOf(orderId));
 		builder.add(KEY_PLACEMENT_TIME, placementTime.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
-		
+
 		JsonArrayBuilder lineItemBuilder = Json.createArrayBuilder();
 		for (RobotOrderLineItem lineItem : lineItems) {
 			lineItemBuilder.add(lineItem.toJSon());
 		}
-		
+
 		builder.add(KEY_LINE_ITEMS, lineItemBuilder);
 		return builder;
 	}

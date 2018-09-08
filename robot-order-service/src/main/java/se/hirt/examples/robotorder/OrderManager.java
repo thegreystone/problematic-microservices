@@ -149,8 +149,8 @@ public class OrderManager {
 
 		@Override
 		public Long get() {
-			FormBody.Builder formBuilder = new FormBody.Builder().add(RobotType.KEY_ROBOT_TYPE,
-					lineItem.getRobotTypeId());
+			FormBody.Builder formBuilder = new FormBody.Builder();
+			formBuilder.add(RobotType.KEY_ROBOT_TYPE, lineItem.getRobotTypeId());
 			formBuilder.add(Robot.KEY_COLOR, lineItem.getColor().toString());
 
 			Request req = new Request.Builder().url(ROBOT_FACTORY_SERVICE_LOCATION + "/factory/buildrobot")

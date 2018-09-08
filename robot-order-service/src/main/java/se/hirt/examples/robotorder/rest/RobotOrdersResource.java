@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.validation.ValidationException;
@@ -104,12 +103,12 @@ public class RobotOrdersResource {
 	@Path("/new")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createNewOrder(JsonObject jsonEntity) {
-		JsonNumber number = jsonEntity.getJsonNumber(Customer.KEY_CUSTOMER_ID);
-		if (number == null) {
+		String customerIdStr = jsonEntity.getString(Customer.KEY_CUSTOMER_ID);
+		if (customerIdStr == null) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(Utils.errorAsJSonString("Request did not specify customer!")).build();
 		}
-		Long customerId = number.longValueExact();
+		Long customerId = Long.parseLong(customerIdStr);
 		JsonValue jsonValue = jsonEntity.get(RobotOrder.KEY_LINE_ITEMS);
 		List<RobotOrderLineItem> lineItems = jsonValue.asJsonArray().stream().map(RobotOrderLineItem::fromJSon)
 				.collect(Collectors.toList());
