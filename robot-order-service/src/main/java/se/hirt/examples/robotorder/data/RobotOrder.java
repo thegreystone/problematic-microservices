@@ -48,7 +48,7 @@ import javax.json.JsonObjectBuilder;
 import se.hirt.examples.customerservice.data.Customer;
 
 /**
- * A simple customer record.
+ * An order for purchasing robots.
  * 
  * @author Marcus Hirt
  */

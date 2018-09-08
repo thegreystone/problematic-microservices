@@ -47,7 +47,7 @@ import se.hirt.examples.robotorder.data.DataAccess;
 import se.hirt.examples.robotorder.data.RobotOrder;
 
 /**
- * Resource for orders being processed.
+ * Resource for an order.
  * 
  * @author Marcus Hirt
  */

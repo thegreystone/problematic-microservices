@@ -64,7 +64,7 @@ import se.hirt.examples.robotorder.data.RobotOrder;
 import se.hirt.examples.robotorder.data.RobotOrderLineItem;
 
 /**
- * Rest API for customers.
+ * Rest API for orders.
  * 
  * @author Marcus Hirt
  */
