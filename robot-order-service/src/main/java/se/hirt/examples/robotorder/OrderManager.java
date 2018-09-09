@@ -52,13 +52,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -66,6 +66,7 @@ import se.hirt.examples.customerservice.data.Customer;
 import se.hirt.examples.customerservice.data.ValidationException;
 import se.hirt.examples.robotfactory.data.Robot;
 import se.hirt.examples.robotfactory.data.RobotType;
+import se.hirt.examples.robotorder.data.RealizedOrder;
 import se.hirt.examples.robotorder.data.RobotOrder;
 import se.hirt.examples.robotorder.data.RobotOrderLineItem;
 
@@ -111,6 +112,7 @@ public class OrderManager {
 		private final Long serial;
 		private final CompletableFuture<Robot> future;
 		public volatile ScheduledFuture<?> scheduledFuture;
+		private volatile boolean isDone = false;
 
 		public RobotPickupJob(Long serial, CompletableFuture<Robot> future) {
 			this.serial = serial;
@@ -119,16 +121,19 @@ public class OrderManager {
 
 		@Override
 		public void run() {
-			FormBody.Builder formBuilder = new FormBody.Builder().add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
-			Request req = new Request.Builder().url(ROBOT_FACTORY_SERVICE_LOCATION + "/factory/pickup")
-					.post(formBuilder.build())
-					//.tag(new TagWrapper(parentSpan.context()))
-					.build();
-			Response response;
+			if (isDone) {
+				scheduledFuture.cancel(false);
+				return;
+			}
+			okhttp3.HttpUrl.Builder httpBuilder = HttpUrl.parse(ROBOT_FACTORY_SERVICE_LOCATION + "/factory/pickup")
+					.newBuilder();
+			httpBuilder.addQueryParameter(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
+			Request request = new Request.Builder().url(httpBuilder.build()).build();
 			try {
-				response = httpClient.newCall(req).execute();
+				Response response = httpClient.newCall(request).execute();
 				String body = response.body().string();
-				if (!body.isEmpty()) {
+				if (response.isSuccessful() && !body.isEmpty()) {
+					isDone = true;
 					Robot robot = Robot.fromJSon(body);
 					future.complete(robot);
 					scheduledFuture.cancel(false);
@@ -169,11 +174,11 @@ public class OrderManager {
 
 		private Long parseSerial(String json) {
 			JsonObject readObject = Json.createReader(new StringReader(json)).readObject();
-			JsonNumber jsonNumber = readObject.asJsonObject().getJsonNumber(Robot.KEY_SERIAL_NUMBER);
-			if (jsonNumber == null) {
+			String serialString = readObject.getString(Robot.KEY_SERIAL_NUMBER);
+			if (serialString == null) {
 				return Robot.INVALID_SERIAL_ID;
 			}
-			return jsonNumber.longValueExact();
+			return Long.valueOf(serialString);
 		}
 	}
 
@@ -261,10 +266,25 @@ public class OrderManager {
 	}
 
 	/**
+	 * @return the current orders in-flight.
+	 */
+	public Collection<RobotOrder> getActiveOrders() {
+		return orderQueue.values();
+	}
+
+	public RobotOrder getActiveOrderById(Long id) {
+		return orderQueue.get(id);
+	}
+
+	/**
 	 * @return the robots available for pick-up.
 	 */
 	public Collection<RealizedOrder> getCompletedOrders() {
 		return completedOrders.values();
+	}
+
+	public RealizedOrder getRealizedOrderById(Long id) {
+		return completedOrders.get(id);
 	}
 
 	/**
@@ -280,4 +300,5 @@ public class OrderManager {
 	public static OrderManager getInstance() {
 		return INSTANCE;
 	}
+
 }

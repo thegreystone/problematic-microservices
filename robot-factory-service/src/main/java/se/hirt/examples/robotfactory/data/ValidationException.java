@@ -34,7 +34,7 @@ package se.hirt.examples.robotfactory.data;
 /**
  * Thrown when data validation fails. 
  * 
- * FIXME: Put these in a shared bundle.
+ * FIXME: Put this in a shared bundle.
  * 
  * @author Marcus Hirt
  */

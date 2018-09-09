@@ -39,15 +39,12 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
-import javax.validation.ValidationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,13 +54,11 @@ import javax.ws.rs.core.UriInfo;
 import se.hirt.examples.customerservice.data.Customer;
 import se.hirt.examples.robotfactory.utils.Utils;
 import se.hirt.examples.robotorder.OrderManager;
-import se.hirt.examples.robotorder.RealizedOrder;
-import se.hirt.examples.robotorder.data.DataAccess;
 import se.hirt.examples.robotorder.data.RobotOrder;
 import se.hirt.examples.robotorder.data.RobotOrderLineItem;
 
 /**
- * Rest API for orders.
+ * Rest API for orders not yet fulfilled.
  * 
  * @author Marcus Hirt
  */
@@ -76,22 +71,10 @@ public class RobotOrdersResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JsonArray list() {
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-		for (RobotOrder order : DataAccess.getAvailableRobotOrders()) {
+		for (RobotOrder order : OrderManager.getInstance().getActiveOrders()) {
 			arrayBuilder.add(order.toJSon());
 		}
 		return arrayBuilder.build();
-	}
-
-	@PUT
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putRobotOrder(JsonObject jsonEntity) {
-		try {
-			RobotOrder robotOrder = RobotOrder.fromJSon(jsonEntity);
-			DataAccess.addRobotOrder(robotOrder);
-			return Response.accepted(robotOrder.toJSon().build().toString()).build();
-		} catch (ValidationException e) {
-			return Response.status(Status.BAD_REQUEST).entity(Utils.errorAsJSonString(e)).build();
-		}
 	}
 
 	@Path("{robotOrderId}/")
@@ -115,21 +98,6 @@ public class RobotOrdersResource {
 		RobotOrder newOrder = OrderManager.getInstance().createNewOrder(customerId,
 				lineItems.toArray(new RobotOrderLineItem[0]));
 		OrderManager.getInstance().dispatchOrder(newOrder);
-		return Response.accepted(newOrder).build();
-	}
-
-	@GET
-	@Path("/pickup")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response buildRobot(@QueryParam(RobotOrder.KEY_ORDER_ID) Long orderId) {
-		if (orderId == null) {
-			return Response.status(Status.BAD_REQUEST)
-					.entity(Utils.errorAsJSonString(RobotOrder.KEY_ORDER_ID + " must not be null!")).build();
-		}
-		RealizedOrder robotOrder = OrderManager.getInstance().pickUpOrder(orderId);
-		if (robotOrder == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok(robotOrder.toJSon().build()).build();
+		return Response.accepted(newOrder.toJSon().build()).build();
 	}
 }

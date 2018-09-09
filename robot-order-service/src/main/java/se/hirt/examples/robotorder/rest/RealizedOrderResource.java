@@ -29,33 +29,48 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotorder.data;
+package se.hirt.examples.robotorder.rest;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import javax.json.JsonObject;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+
+import se.hirt.examples.robotorder.OrderManager;
+import se.hirt.examples.robotorder.data.RealizedOrder;
 
 /**
- * Simplified data access. FIXME: Store in couch base/cassandra/whatever:
+ * Resource for an order that is ready for pickup.
  * 
  * @author Marcus Hirt
  */
-public class DataAccess {
-	private final static Map<Long, RobotOrder> ROBOT_ORDERS = new HashMap<>();
+public class RealizedOrderResource {
+	private final UriInfo uriInfo;
+	private final Long robotOrderId;
+	private final RealizedOrder realizedOrder;
 
-	public static Collection<RobotOrder> getAvailableRobotOrders() {
-		return ROBOT_ORDERS.values();
+	public RealizedOrderResource(UriInfo uriInfo, Long id) {
+		this.uriInfo = uriInfo;
+		this.robotOrderId = id;
+		this.realizedOrder = OrderManager.getInstance().getRealizedOrderById(id);
 	}
 
-	public static void addRobotOrder(RobotOrder robotOrder) {
-		ROBOT_ORDERS.put(robotOrder.getOrderId(), robotOrder);
+	public UriInfo getUriInfo() {
+		return uriInfo;
 	}
 
-	public static RobotOrder getRobotOrderById(Long id) {
-		return ROBOT_ORDERS.get(id);
+	public Long getRobotTypeId() {
+		return robotOrderId;
 	}
 
-	public static void removeRobotOrder(RobotOrder robotOrder) {
-		ROBOT_ORDERS.remove(robotOrder.getOrderId());
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject getRobotType() {
+		if (realizedOrder == null) {
+			throw new NotFoundException("robotOrder with id " + robotOrderId + " does not exist!");
+		}
+		return realizedOrder.toJSon().build();
 	}
 }

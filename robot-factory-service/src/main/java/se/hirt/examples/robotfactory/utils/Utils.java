@@ -36,6 +36,8 @@ import se.hirt.examples.robotfactory.logging.Logger;
 /**
  * Toolkit
  * 
+ * FIXME: Put this in a shared bundle.
+ * 
  * @author Marcus Hirt
  */
 public class Utils {

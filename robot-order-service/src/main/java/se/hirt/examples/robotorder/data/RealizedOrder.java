@@ -29,54 +29,69 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.customerservice.utils;
+package se.hirt.examples.robotorder.data;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 
-import se.hirt.examples.customerservice.logging.Logger;
+import se.hirt.examples.customerservice.data.Customer;
+import se.hirt.examples.robotfactory.data.Robot;
+import se.hirt.examples.robotorder.utils.Utils;
 
 /**
- * Toolkit
- *
- * FIXME: Put this in a shared bundle.
+ * An order that is ready for delivery. Contains the orderId and all the ordered robots.
  * 
  * @author Marcus Hirt
  */
-public class Utils {
-	public static final String KEY_ERROR = "error";
-	public static final String KEY_ACTION = "action";
+public class RealizedOrder {
+	public final static String KEY_ROBOTS = "robots";
+	public final static String KEY_CUSTOMER = "customer";
+	public final static String KEY_ORDER = "order";
+	private final RobotOrder order;
+	private final Customer customer;
+	private final Robot[] robots;
+	private final Throwable error;
 
-	private static final String FORMAT_ACTION = "{\"" + KEY_ACTION + "\":\"message\",\"text\":\"%s\"}";
-	private static final String FORMAT_ERROR = "{\"" + KEY_ERROR + "\":\"%s\"}";
-
-	private Utils() {
-		throw new UnsupportedOperationException("Tookit!");
+	public RealizedOrder(RobotOrder order, Customer customer, Robot[] robots, Throwable error) {
+		this.order = order;
+		this.customer = customer;
+		this.robots = robots;
+		this.error = error;
 	}
 
-	public static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			Logger.log(e.getMessage());
-		}
+	public RobotOrder getOrder() {
+		return order;
 	}
 
-	public static String errorAsJSonString(Throwable t) {
-		return errorAsJSonString(t.getMessage());
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public static String messageActionAsJSonString(String message) {
-		return String.format(FORMAT_ACTION, message);
+	public Robot[] getRobots() {
+		return robots;
 	}
 
-	public static String errorAsJSonString(String message) {
-		return String.format(FORMAT_ERROR, message);
+	public Throwable getError() {
+		return error;
 	}
 
-	public static JsonObjectBuilder errorAsJSon(Throwable error) {
+	public JsonObjectBuilder toJSon() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add(KEY_ERROR, error.toString());
+		builder.add(KEY_CUSTOMER, customer.toJSon());
+		builder.add(KEY_ORDER, order.toJSon());
+		builder.add(KEY_ROBOTS, serializeRobotsToJSon());
+		if (error != null) {
+			builder.add(Utils.KEY_ERROR, Utils.errorAsJSon(error));
+		}
+		return builder;
+	}
+
+	private JsonArrayBuilder serializeRobotsToJSon() {
+		JsonArrayBuilder builder = Json.createArrayBuilder();
+		for (Robot robot : robots) {
+			builder.add(robot.toJSon());
+		}
 		return builder;
 	}
 }

@@ -39,6 +39,8 @@ import javax.ws.rs.core.Application;
 import org.glassfish.jersey.jsonb.internal.JsonBindingProvider;
 
 import se.hirt.examples.robotorder.rest.HelloRest;
+import se.hirt.examples.robotorder.rest.RealizedOrderResource;
+import se.hirt.examples.robotorder.rest.RealizedOrdersResource;
 import se.hirt.examples.robotorder.rest.RobotOrderResource;
 import se.hirt.examples.robotorder.rest.RobotOrdersResource;
 
@@ -53,6 +55,8 @@ public class ResourceLoader extends Application {
 	public Set<Class<?>> getClasses() {
 		final Set<Class<?>> classes = new HashSet<Class<?>>();
 		classes.add(HelloRest.class);
+		classes.add(RealizedOrderResource.class);
+		classes.add(RealizedOrdersResource.class);
 		classes.add(RobotOrderResource.class);
 		classes.add(RobotOrdersResource.class);
 		classes.add(JsonBindingProvider.class);

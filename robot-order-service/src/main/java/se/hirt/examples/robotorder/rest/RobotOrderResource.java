@@ -32,18 +32,13 @@
 package se.hirt.examples.robotorder.rest;
 
 import javax.json.JsonObject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import se.hirt.examples.robotorder.data.DataAccess;
+import se.hirt.examples.robotorder.OrderManager;
 import se.hirt.examples.robotorder.data.RobotOrder;
 
 /**
@@ -59,7 +54,7 @@ public class RobotOrderResource {
 	public RobotOrderResource(UriInfo uriInfo, Long id) {
 		this.uriInfo = uriInfo;
 		this.robotOrderId = id;
-		this.robotOrder = DataAccess.getRobotOrderById(id);
+		this.robotOrder = OrderManager.getInstance().getActiveOrderById(id);
 	}
 
 	public UriInfo getUriInfo() {
@@ -78,27 +73,4 @@ public class RobotOrderResource {
 		}
 		return robotOrder.toJSon().build();
 	}
-
-	@PUT
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putRobotOrder(JsonObject jsonEntity) {
-		RobotOrder newOrder = RobotOrder.fromJSon(jsonEntity);
-
-		if ((newOrder.getOrderId() != null) && !newOrder.getOrderId().equals(robotOrderId)) {
-			return Response.status(409).entity("orderIds differ!\n").build();
-		}
-		DataAccess.addRobotOrder(newOrder);
-		return Response.noContent().build();
-	}
-
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteRobotType() {
-		if (robotOrder == null) {
-			throw new NotFoundException("orderId " + robotOrderId + "does not exist!");
-		}
-		DataAccess.removeRobotOrder(robotOrder);
-		return Response.status(Status.OK).entity(robotOrder).build();
-	}
-
 }

@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
@@ -113,13 +112,13 @@ public class RobotOrder implements Serializable {
 			throw new IllegalArgumentException("Must have an orderId to create an order");
 		}
 
-		JsonNumber jsonCustomerId = json.getJsonNumber(Customer.KEY_CUSTOMER_ID);
-		if ((jsonCustomerId == null)) {
+		String jsonCustomerIdStr = json.getString(Customer.KEY_CUSTOMER_ID);
+		if (jsonCustomerIdStr == null) {
 			throw new IllegalArgumentException("Must have an customerId to create an order");
 		}
 
 		long orderId = Long.valueOf(jsonOrderIdStr);
-		long customerId = jsonCustomerId.longValueExact();
+		long customerId = Long.valueOf(jsonCustomerIdStr);
 		ZonedDateTime placementTime = ZonedDateTime.parse(json.getString(KEY_PLACEMENT_TIME));
 		RobotOrderLineItem[] lineItems = parseLineItems(json.getJsonArray(KEY_LINE_ITEMS));
 
@@ -134,8 +133,8 @@ public class RobotOrder implements Serializable {
 
 	public JsonObjectBuilder toJSon() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		// Cannot use longs since, guess what, JavaScript will round them. ;)
 		builder.add(KEY_ORDER_ID, String.valueOf(orderId));
+		builder.add(Customer.KEY_CUSTOMER_ID, String.valueOf(customerId));
 		builder.add(KEY_PLACEMENT_TIME, placementTime.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
 
 		JsonArrayBuilder lineItemBuilder = Json.createArrayBuilder();

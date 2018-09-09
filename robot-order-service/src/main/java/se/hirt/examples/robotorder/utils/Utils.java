@@ -39,6 +39,8 @@ import se.hirt.examples.robotorder.logging.Logger;
 /**
  * Toolkit
  * 
+ * FIXME: Put this in a shared bundle.
+ * 
  * @author Marcus Hirt
  */
 public class Utils {

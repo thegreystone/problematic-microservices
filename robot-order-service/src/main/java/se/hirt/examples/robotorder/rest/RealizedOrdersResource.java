@@ -29,70 +29,64 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotorder;
+package se.hirt.examples.robotorder.rest;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
-import se.hirt.examples.customerservice.data.Customer;
-import se.hirt.examples.robotfactory.data.Robot;
+import se.hirt.examples.robotfactory.utils.Utils;
+import se.hirt.examples.robotorder.OrderManager;
+import se.hirt.examples.robotorder.data.RealizedOrder;
 import se.hirt.examples.robotorder.data.RobotOrder;
-import se.hirt.examples.robotorder.utils.Utils;
 
 /**
- * Contains the orderId and all the ordered robots.
+ * Rest API for orders that are ready for pickup.
  * 
  * @author Marcus Hirt
  */
-public class RealizedOrder {
-	public final static String KEY_ROBOTS = "robots";
-	public final static String KEY_CUSTOMER = "customer";
-	public final static String KEY_ORDER = "order";
-	private final RobotOrder order;
-	private final Customer customer;
-	private final Robot[] robots;
-	private final Throwable error;
+@Path("/readyorders/")
+public class RealizedOrdersResource {
+	@Context
+	UriInfo uriInfo;
 
-	public RealizedOrder(RobotOrder order, Customer customer, Robot[] robots, Throwable error) {
-		this.order = order;
-		this.customer = customer;
-		this.robots = robots;
-		this.error = error;
-	}
-
-	public RobotOrder getOrder() {
-		return order;
-	}
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public Robot[] getRobots() {
-		return robots;
-	}
-
-	public Throwable getError() {
-		return error;
-	}
-
-	public JsonObjectBuilder toJSon() {
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add(KEY_CUSTOMER, customer.toJSon());
-		builder.add(KEY_ORDER, order.toJSon());
-		builder.add(KEY_ROBOTS, serializeRobotsToJSon());
-		if (error != null) {
-			builder.add(Utils.KEY_ERROR, Utils.errorAsJSon(error));
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonArray list() {
+		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+		for (RealizedOrder order : OrderManager.getInstance().getCompletedOrders()) {
+			arrayBuilder.add(order.toJSon());
 		}
-		return builder;
+		return arrayBuilder.build();
 	}
 
-	private JsonArrayBuilder serializeRobotsToJSon() {
-		JsonArrayBuilder builder = Json.createArrayBuilder();
-		for (Robot robot : robots) {
-			builder.add(robot.toJSon());
+	@Path("{robotOrderId}/")
+	public RealizedOrderResource getOrder(@PathParam(RobotOrder.KEY_ORDER_ID) Long robotOrderId) {
+		return new RealizedOrderResource(uriInfo, robotOrderId);
+	}
+
+	@GET
+	@Path("/pickup")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response buildRobot(@QueryParam(RobotOrder.KEY_ORDER_ID) Long orderId) {
+		if (orderId == null) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity(Utils.errorAsJSonString(RobotOrder.KEY_ORDER_ID + " must not be null!")).build();
 		}
-		return builder;
+		RealizedOrder robotOrder = OrderManager.getInstance().pickUpOrder(orderId);
+		if (robotOrder == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		return Response.ok(robotOrder.toJSon().build()).build();
 	}
 }

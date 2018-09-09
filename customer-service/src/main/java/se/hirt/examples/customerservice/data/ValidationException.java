@@ -34,6 +34,8 @@ package se.hirt.examples.customerservice.data;
 /**
  * Thrown when data validation fails.
  * 
+ * FIXME: Put this in a shared bundle.
+ * 
  * @author Marcus Hirt
  */
 public class ValidationException extends Exception {

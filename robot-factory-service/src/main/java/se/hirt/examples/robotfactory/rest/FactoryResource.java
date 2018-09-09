@@ -101,7 +101,7 @@ public class FactoryResource {
 		}
 
 		long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
-		createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, serialNumber);
+		createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
 		return Response.accepted(createObjectBuilder.build()).build();
 	}
 
