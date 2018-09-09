@@ -1,4 +1,4 @@
-# problematic-web-app
+# Problematic Microservices
 A micro services application with various commonly encountered problems that can be used to train your profiling and diagnostic chops.
 
 # Building
