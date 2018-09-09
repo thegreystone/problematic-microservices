@@ -2,13 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>se.hirt.examples</groupId>
-	<artifactId>problematic-minimal-microservices</artifactId>
-	<version>7.0.0-SNAPSHOT</version>
+	<artifactId>robotshop</artifactId>
+	<name>Robotshop</name>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>customer-service</module>
-		<module>robot-factory-service</module>
-		<module>robot-order-service</module>
+		<module>robotshop-common</module>
+		<module>robotshop-customer-service</module>
+		<module>robotshop-factory-service</module>
+		<module>robotshop-order-service</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

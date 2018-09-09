@@ -1,5 +1,5 @@
 # problematic-web-app
-A web application with various commonly encountered problems that can be used to train your profiling and diagnostic chops. This web application requires JDK 11 to build and run.
+A micro services application with various commonly encountered problems that can be used to train your profiling and diagnostic chops.
 
 # Building
 ```bash
