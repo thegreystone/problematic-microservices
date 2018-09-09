@@ -114,7 +114,7 @@
 					<assembleDirectory>target</assembleDirectory>
 					<programs>
 						<program>
-							<mainClass>se.hirt.examples.robotfactory.Main</mainClass>
+							<mainClass>se.hirt.examples.robotshop.robotfactory.Main</mainClass>
 							<id>robotFactoryService</id>
 						</program>
 					</programs>

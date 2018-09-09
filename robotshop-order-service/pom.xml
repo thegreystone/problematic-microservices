@@ -120,7 +120,7 @@
 					<assembleDirectory>target</assembleDirectory>
 					<programs>
 						<program>
-							<mainClass>se.hirt.examples.robotorder.Main</mainClass>
+							<mainClass>se.hirt.examples.robotshop.order.Main</mainClass>
 							<id>robotOrderService</id>
 						</program>
 					</programs>
