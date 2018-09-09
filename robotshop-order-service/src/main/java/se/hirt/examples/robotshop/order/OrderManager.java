@@ -77,10 +77,10 @@ import se.hirt.examples.robotshop.order.data.RobotOrderLineItem;
  */
 public class OrderManager {
 	private final static String CUSTOMER_SERVICE_LOCATION;
-	private final static String ROBOT_FACTORY_SERVICE_LOCATION;
+	private final static String FACTORY_SERVICE_LOCATION;
 
 	private final static String DEFAULT_CUSTOMER_SERVICE_LOCATION = "http://localhost:8081";
-	private final static String DEFAULT_ROBOT_FACTORY_SERVICE_LOCATION = "http://localhost:8082";
+	private final static String DEFAULT_FACTORY_SERVICE_LOCATION = "http://localhost:8082";
 
 	private final static OrderManager INSTANCE = new OrderManager();
 	private final static int DEFAULT_NUMBER_OF_ORDER_DISPATCHERS = 4;
@@ -96,15 +96,15 @@ public class OrderManager {
 
 	static {
 		// Setting up service locations...
-		String robotFactory = System.getenv("ROBOT_FACTORY_SERVICE_LOCATION");
+		String robotFactory = System.getenv("FACTORY_SERVICE_LOCATION");
 		if (robotFactory == null) {
-			robotFactory = DEFAULT_ROBOT_FACTORY_SERVICE_LOCATION;
+			robotFactory = DEFAULT_FACTORY_SERVICE_LOCATION;
 		}
 		String customerService = System.getenv("CUSTOMER_SERVICE_LOCATION");
 		if (customerService == null) {
 			customerService = DEFAULT_CUSTOMER_SERVICE_LOCATION;
 		}
-		ROBOT_FACTORY_SERVICE_LOCATION = robotFactory;
+		FACTORY_SERVICE_LOCATION = robotFactory;
 		CUSTOMER_SERVICE_LOCATION = customerService;
 	}
 
@@ -125,7 +125,7 @@ public class OrderManager {
 				scheduledFuture.cancel(false);
 				return;
 			}
-			okhttp3.HttpUrl.Builder httpBuilder = HttpUrl.parse(ROBOT_FACTORY_SERVICE_LOCATION + "/factory/pickup")
+			okhttp3.HttpUrl.Builder httpBuilder = HttpUrl.parse(FACTORY_SERVICE_LOCATION + "/factory/pickup")
 					.newBuilder();
 			httpBuilder.addQueryParameter(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
 			Request request = new Request.Builder().url(httpBuilder.build()).build();
@@ -158,7 +158,7 @@ public class OrderManager {
 			formBuilder.add(RobotType.KEY_ROBOT_TYPE, lineItem.getRobotTypeId());
 			formBuilder.add(Robot.KEY_COLOR, lineItem.getColor().toString());
 
-			Request req = new Request.Builder().url(ROBOT_FACTORY_SERVICE_LOCATION + "/factory/buildrobot")
+			Request req = new Request.Builder().url(FACTORY_SERVICE_LOCATION + "/factory/buildrobot")
 					.post(formBuilder.build())
 					//.tag(new TagWrapper(parentSpan.context()))
 					.build();
