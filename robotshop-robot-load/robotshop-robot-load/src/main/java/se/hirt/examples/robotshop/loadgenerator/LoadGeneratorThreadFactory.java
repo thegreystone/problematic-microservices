@@ -29,22 +29,25 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotshop.common.data;
+package se.hirt.examples.robotshop.loadgenerator;
+
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Just a color.
+ * 
  * 
  * @author Marcus Hirt
  */
-public enum Color {
-	RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, BLACK, WHITE, PINK;
+public class LoadGeneratorThreadFactory implements ThreadFactory {
+	private final static AtomicInteger COUNTER = new AtomicInteger(0);
+	private final static ThreadGroup THREAD_GROUP = new ThreadGroup("LoadWorkers");
 
 	@Override
-	public String toString() {
-		return super.toString().toLowerCase();
+	public Thread newThread(Runnable r) {
+		Thread thread = new Thread(THREAD_GROUP, r, "WorkerThread-" + COUNTER.getAndIncrement());
+		thread.setDaemon(true);
+		return thread;
 	}
-	
-	public static Color fromString(String colorName) {
-		return valueOf(colorName.toUpperCase());
-	}
+
 }

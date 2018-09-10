@@ -29,22 +29,33 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotshop.common.data;
+package se.hirt.examples.robotshop.common.opentracing;
 
+import io.opentracing.Span;
+import io.opentracing.contrib.okhttp3.OkHttpClientSpanDecorator;
+import okhttp3.Connection;
+import okhttp3.Request;
+import okhttp3.Response;
 /**
- * Just a color.
+ * Span decorator for OkHttp client-use.
  * 
  * @author Marcus Hirt
  */
-public enum Color {
-	RED, GREEN, BLUE, CYAN, MAGENTA, YELLOW, BLACK, WHITE, PINK;
+public class SpanDecorator implements OkHttpClientSpanDecorator {
 
 	@Override
-	public String toString() {
-		return super.toString().toLowerCase();
+	public void onRequest(Request request, Span span) {
+		span.setOperationName("Call: " + request.url().toString());
 	}
-	
-	public static Color fromString(String colorName) {
-		return valueOf(colorName.toUpperCase());
+
+	@Override
+	public void onError(Throwable throwable, Span span) {
+		span.setOperationName("Error: " + throwable.getMessage());
 	}
+
+	@Override
+	public void onResponse(Connection connection, Response response, Span span) {
+		span.setOperationName("Response: " + response.code());
+	}
+
 }

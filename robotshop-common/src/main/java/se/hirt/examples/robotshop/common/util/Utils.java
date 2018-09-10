@@ -35,7 +35,7 @@ import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
 /**
- * Toolkit
+ * Toolkit with various utility methods for the example.
  *
  * @author Marcus Hirt
  */

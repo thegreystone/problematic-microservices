@@ -53,6 +53,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import se.hirt.examples.robotshop.common.data.Customer;
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingFilter;
 import se.hirt.examples.robotshop.common.util.Utils;
 import se.hirt.examples.robotshop.order.OrderManager;
 import se.hirt.examples.robotshop.order.data.RobotOrder;
@@ -98,7 +99,7 @@ public class RobotOrdersResource {
 				.collect(Collectors.toList());
 		RobotOrder newOrder = OrderManager.getInstance().createNewOrder(customerId,
 				lineItems.toArray(new RobotOrderLineItem[0]));
-		OrderManager.getInstance().dispatchOrder(newOrder);
+		OrderManager.getInstance().dispatchOrder(newOrder, OpenTracingFilter.getActiveContext(request));
 		return Response.accepted(newOrder.toJSon().build()).build();
 	}
 }

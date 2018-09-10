@@ -94,4 +94,8 @@ public class RealizedOrder {
 		}
 		return builder;
 	}
+	
+	public String toString() {
+		return "RealizedOrder [customerId: " + (customer == null ? "customer is null!" : customer.getId()) + ", robots=" + robots + "]";
+	}
 }

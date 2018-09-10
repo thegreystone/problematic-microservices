@@ -67,7 +67,7 @@ public class Main {
 
 		tomcat.setPort(Integer.valueOf(webPort));
 
-		StandardContext ctx = (StandardContext) tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
+		StandardContext ctx = (StandardContext) tomcat.addWebapp("", new File(webappDirLocation).getAbsolutePath());
 		System.out.println("Basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
 		File additionWebInfClasses = new File("target/classes");
 		WebResourceRoot resources = new StandardRoot(ctx);
