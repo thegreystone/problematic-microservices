@@ -1,5 +1,5 @@
 # Problematic Microservices
-A micro services application with various commonly encountered problems that can be used to train your profiling and diagnostic chops.
+A micro services application, running on Embedded Tomcat, with various commonly encountered problems that can be used to train your profiling and diagnostic chops.
 
 # Building
 ```bash
