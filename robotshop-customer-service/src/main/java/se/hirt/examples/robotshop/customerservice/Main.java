@@ -44,6 +44,8 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil;
+
 /**
  * Launches the embedded Tomcat for the customers service.
  * 
@@ -54,6 +56,8 @@ public class Main {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws ServletException, LifecycleException {
+		OpenTracingUtil.configureOpenTracing("RobotShop");
+		
 		String webappDirLocation = "src/main/webapp/";
 		Tomcat tomcat = new Tomcat();
 

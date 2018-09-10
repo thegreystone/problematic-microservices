@@ -38,6 +38,7 @@ import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.jsonb.internal.JsonBindingProvider;
 
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingDynamicFeature;
 import se.hirt.examples.robotshop.order.rest.HelloRest;
 import se.hirt.examples.robotshop.order.rest.RealizedOrderResource;
 import se.hirt.examples.robotshop.order.rest.RealizedOrdersResource;
@@ -60,6 +61,7 @@ public class ResourceLoader extends Application {
 		classes.add(RobotOrderResource.class);
 		classes.add(RobotOrdersResource.class);
 		classes.add(JsonBindingProvider.class);
+		classes.add(OpenTracingDynamicFeature.class);
 		return classes;
 	}
 }

@@ -39,6 +39,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -51,11 +52,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import se.hirt.examples.robotshop.common.data.Customer;
 import se.hirt.examples.robotshop.common.util.Utils;
 import se.hirt.examples.robotshop.order.OrderManager;
 import se.hirt.examples.robotshop.order.data.RobotOrder;
 import se.hirt.examples.robotshop.order.data.RobotOrderLineItem;
-import se.hirt.examples.robotshop.common.data.Customer;
 
 /**
  * Rest API for orders not yet fulfilled.
@@ -85,7 +86,7 @@ public class RobotOrdersResource {
 	@POST
 	@Path("/new")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createNewOrder(JsonObject jsonEntity) {
+	public Response createNewOrder(@Context HttpServletRequest request, JsonObject jsonEntity) {
 		String customerIdStr = jsonEntity.getString(Customer.KEY_CUSTOMER_ID);
 		if (customerIdStr == null) {
 			return Response.status(Status.BAD_REQUEST)
