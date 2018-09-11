@@ -46,6 +46,7 @@ import io.jaegertracing.samplers.ConstSampler;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 import se.hirt.examples.robotshop.common.util.Logger;
+import se.hirt.examples.robotshop.common.util.Utils;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Reporter;
@@ -62,6 +63,8 @@ public class OpenTracingUtil {
 	private final static Properties CONFIGURATION;
 
 	static {
+		// Setting up logging just before initing open tracing.
+		Utils.initLogging();
 		CONFIGURATION = loadProperties();
 	}
 
@@ -110,8 +113,7 @@ public class OpenTracingUtil {
 					.withAgentPort(Integer.decode(configuration.getProperty("jaeger.reporter.port")));
 			ReporterConfiguration reporterConfig = new ReporterConfiguration().withLogSpans(true)
 					.withFlushInterval(1000).withMaxQueueSize(10000).withSender(senderConfig);
-			tracer = new Configuration(serviceName).withSampler(samplerConfig).withReporter(reporterConfig)
-					.getTracer();
+			tracer = new Configuration(serviceName).withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
 		} else if ("zipkin".equals(tracerName)) {
 			OkHttpSender sender = OkHttpSender.create("http://" + configuration.getProperty("zipkin.reporter.host")
 					+ ":" + configuration.getProperty("zipkin.reporter.port") + "/api/v1/spans");

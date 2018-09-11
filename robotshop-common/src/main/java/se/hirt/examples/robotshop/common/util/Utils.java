@@ -31,6 +31,10 @@
  */
 package se.hirt.examples.robotshop.common.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
@@ -74,5 +78,17 @@ public class Utils {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		builder.add(KEY_ERROR, error.toString());
 		return builder;
+	}
+
+	/**
+	 * Sets up java.util.logging according to our settings.
+	 */
+	public static void initLogging() {
+		try (InputStream stream = Utils.class.getClassLoader().getResourceAsStream("logging.properties")) {
+			LogManager.getLogManager().readConfiguration(stream);
+		} catch (IOException e) {
+			System.out.println("Could not find the logging property file!");
+			e.printStackTrace();
+		}
 	}
 }

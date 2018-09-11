@@ -157,7 +157,7 @@ public class LoadWorker implements Runnable {
 	}
 
 	private String removeOwner(RealizedOrder realizedOrder, SpanContext ctx) {
-		System.out.println("User " + realizedOrder.getCustomer() + " picked up " + realizedOrder.getOrder().getOrderId()
+		System.out.println("User " + realizedOrder.getCustomer() + " picked up order #" + realizedOrder.getOrder().getOrderId()
 				+ ". Now removing customer.");
 
 		Customer customer = realizedOrder.getCustomer();
@@ -183,8 +183,8 @@ public class LoadWorker implements Runnable {
 	}
 
 	private void awaitOrderCompletion(RobotOrder order, CompletableFuture<RealizedOrder> future, SpanContext parent) {
-		System.out.println("Created order " + order.getOrderId() + " for user " + order.getCustomerId()
-				+ ", now awaiting completion.");
+		System.out.println("Created order " + order.getOrderId() + " for user " + order.getCustomerId() + " with "
+				+ order.getLineItems().length + " robot(s)" + ", now awaiting completion.");
 		OrderCompletionMonitor job = new OrderCompletionMonitor(urlOrder + "/readyorders/pickup", order, future,
 				parent);
 		job.scheduledFuture = COMPLETION_POLL_EXECUTOR.scheduleAtFixedRate(job, 50, 2000, TimeUnit.MILLISECONDS);
