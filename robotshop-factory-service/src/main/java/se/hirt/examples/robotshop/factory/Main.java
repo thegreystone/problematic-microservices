@@ -56,7 +56,7 @@ public class Main {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws ServletException, LifecycleException {
-		OpenTracingUtil.configureOpenTracing("RobotShop");
+		OpenTracingUtil.configureOpenTracing("RobotShop-Factory-Service");
 
 		String webappDirLocation = "src/main/webapp/";
 		Tomcat tomcat = new Tomcat();

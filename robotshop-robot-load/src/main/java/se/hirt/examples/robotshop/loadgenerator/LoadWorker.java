@@ -71,6 +71,7 @@ import se.hirt.examples.robotshop.common.data.Robot;
 import se.hirt.examples.robotshop.common.data.RobotOrder;
 import se.hirt.examples.robotshop.common.data.RobotOrderLineItem;
 import se.hirt.examples.robotshop.common.data.RobotType;
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil;
 import se.hirt.examples.robotshop.common.opentracing.SpanDecorator;
 import se.hirt.examples.robotshop.common.util.Logger;
 
@@ -93,6 +94,10 @@ public class LoadWorker implements Runnable {
 	private final String urlOrder;
 	private final int minRobotsPerOrder;
 	private final int maxRobotsPerOrder;
+
+	static {
+		OpenTracingUtil.configureOpenTracing("RobotShop-LoadGenerator");
+	}
 
 	public LoadWorker(Properties configuration) {
 		urlCustomer = configuration.getProperty("urlCustomerService");
@@ -152,7 +157,8 @@ public class LoadWorker implements Runnable {
 	}
 
 	private String removeOwner(RealizedOrder realizedOrder, SpanContext ctx) {
-		System.out.println("User " + realizedOrder.getCustomer() + " picked up " + realizedOrder.getOrder().getOrderId() + ". Now removing customer.");
+		System.out.println("User " + realizedOrder.getCustomer() + " picked up " + realizedOrder.getOrder().getOrderId()
+				+ ". Now removing customer.");
 
 		Customer customer = realizedOrder.getCustomer();
 		String url = urlCustomer + "/customers/" + customer.getId();
@@ -306,7 +312,7 @@ public class LoadWorker implements Runnable {
 	}
 
 	public static void main(String[] args) throws IOException {
-		byte [] input = new byte[5];
+		byte[] input = new byte[5];
 		LoadWorker worker = new LoadWorker(Utils.loadPropertiesFromResource("load.properties"));
 		while (input[0] != 'q') {
 			worker.run();

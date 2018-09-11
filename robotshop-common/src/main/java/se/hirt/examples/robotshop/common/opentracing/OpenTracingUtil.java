@@ -100,7 +100,7 @@ public class OpenTracingUtil {
 		configureOpenTracing(CONFIGURATION, componentName);
 	}
 
-	private static void configureOpenTracing(Properties configuration, String componentName) {
+	private static void configureOpenTracing(Properties configuration, String serviceName) {
 		Tracer tracer = null;
 		String tracerName = configuration.getProperty("tracer");
 		if ("jaeger".equals(tracerName)) {
@@ -110,14 +110,14 @@ public class OpenTracingUtil {
 					.withAgentPort(Integer.decode(configuration.getProperty("jaeger.reporter.port")));
 			ReporterConfiguration reporterConfig = new ReporterConfiguration().withLogSpans(true)
 					.withFlushInterval(1000).withMaxQueueSize(10000).withSender(senderConfig);
-			tracer = new Configuration(componentName).withSampler(samplerConfig).withReporter(reporterConfig)
+			tracer = new Configuration(serviceName).withSampler(samplerConfig).withReporter(reporterConfig)
 					.getTracer();
 		} else if ("zipkin".equals(tracerName)) {
 			OkHttpSender sender = OkHttpSender.create("http://" + configuration.getProperty("zipkin.reporter.host")
 					+ ":" + configuration.getProperty("zipkin.reporter.port") + "/api/v1/spans");
 			Reporter<Span> reporter = AsyncReporter.builder(sender).build();
 			tracer = BraveTracer
-					.create(Tracing.newBuilder().localServiceName(componentName).spanReporter(reporter).build());
+					.create(Tracing.newBuilder().localServiceName(serviceName).spanReporter(reporter).build());
 		}
 		// FIXME: Add delegating JFR tracer
 		GlobalTracer.register(tracer);

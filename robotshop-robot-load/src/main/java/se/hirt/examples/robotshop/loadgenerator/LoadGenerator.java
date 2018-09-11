@@ -38,8 +38,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil;
-
 /**
  * Simple little load generator to this example application.
  * 
@@ -49,7 +47,6 @@ public class LoadGenerator {
 	private static ScheduledExecutorService threadPool;
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		OpenTracingUtil.configureOpenTracing("RobotShop");
 		Properties props = null;
 
 		if (args.length == 1) {
