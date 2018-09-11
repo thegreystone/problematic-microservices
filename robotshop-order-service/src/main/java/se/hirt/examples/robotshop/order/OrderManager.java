@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +47,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
@@ -61,7 +62,6 @@ import io.opentracing.References;
 import io.opentracing.Scope;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer.SpanBuilder;
-import io.opentracing.contrib.okhttp3.OkHttpClientSpanDecorator;
 import io.opentracing.contrib.okhttp3.TracingCallFactory;
 import io.opentracing.util.GlobalTracer;
 import okhttp3.Call;
@@ -71,13 +71,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import se.hirt.examples.robotshop.common.data.Customer;
+import se.hirt.examples.robotshop.common.data.RealizedOrder;
 import se.hirt.examples.robotshop.common.data.Robot;
+import se.hirt.examples.robotshop.common.data.RobotOrder;
+import se.hirt.examples.robotshop.common.data.RobotOrderLineItem;
 import se.hirt.examples.robotshop.common.data.RobotType;
 import se.hirt.examples.robotshop.common.data.ValidationException;
 import se.hirt.examples.robotshop.common.opentracing.SpanDecorator;
-import se.hirt.examples.robotshop.order.data.RealizedOrder;
-import se.hirt.examples.robotshop.order.data.RobotOrder;
-import se.hirt.examples.robotshop.order.data.RobotOrderLineItem;
 
 /**
  * Order manager, tracking and fulfilling robot orders.
@@ -85,6 +85,7 @@ import se.hirt.examples.robotshop.order.data.RobotOrderLineItem;
  * @author Marcus Hirt
  */
 public class OrderManager {
+	private final static int JOB_QUEUE_SIZE = 500;
 	private final static String CUSTOMER_SERVICE_LOCATION;
 	private final static String FACTORY_SERVICE_LOCATION;
 
@@ -97,11 +98,13 @@ public class OrderManager {
 
 	private final Map<Long, RobotOrder> orderQueue = new ConcurrentHashMap<>();
 	private final Map<Long, RealizedOrder> completedOrders = new ConcurrentHashMap<>();
+	private final BlockingQueue<Runnable> jobQueue = new ArrayBlockingQueue<>(JOB_QUEUE_SIZE);
 	private final Executor orderDispatcher = new ThreadPoolExecutor(0, DEFAULT_NUMBER_OF_ORDER_DISPATCHERS, 60,
-			TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+			TimeUnit.SECONDS, jobQueue);
 	private final ScheduledExecutorService completionPollExecutor = Executors.newScheduledThreadPool(4);
 
-	private final Call.Factory httpClient = new TracingCallFactory(new OkHttpClient(), GlobalTracer.get(), getSpanDecorators());
+	private final Call.Factory httpClient = new TracingCallFactory(new OkHttpClient(), GlobalTracer.get(),
+			SpanDecorator.getSpanDecorators());
 
 	static {
 		// Setting up service locations...
@@ -295,12 +298,6 @@ public class OrderManager {
 
 	public RobotOrder createNewOrder(long customerId, RobotOrderLineItem[] lineItems) {
 		return new RobotOrder(SERIAL_ID_GENERATOR.getAndIncrement(), customerId, ZonedDateTime.now(), lineItems);
-	}
-
-	private List<OkHttpClientSpanDecorator> getSpanDecorators() {
-		List<OkHttpClientSpanDecorator> decorators = new ArrayList<>(1);
-		decorators.add(new SpanDecorator());
-		return decorators;
 	}
 
 	/**

@@ -29,15 +29,21 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotshop.order.data;
+package se.hirt.examples.robotshop.common.data;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 
 import se.hirt.examples.robotshop.common.util.Utils;
-import se.hirt.examples.robotshop.common.data.Customer;
-import se.hirt.examples.robotshop.common.data.Robot;
 
 /**
  * An order that is ready for delivery. Contains the orderId and all the ordered robots.
@@ -94,8 +100,26 @@ public class RealizedOrder {
 		}
 		return builder;
 	}
-	
+
 	public String toString() {
-		return "RealizedOrder [customerId: " + (customer == null ? "customer is null!" : customer.getId()) + ", robots=" + robots + "]";
+		return "RealizedOrder [customerId: " + (customer == null ? "customer is null!" : customer.getId()) + ", robots="
+				+ robots + "]";
+	}
+
+	public static RealizedOrder fromJSon(String json) {
+		JsonReader parser = Json.createReader(new StringReader(json));
+		JsonObject object = parser.readObject();
+		RobotOrder order = RobotOrder.fromJSon(object.getJsonObject(KEY_ORDER));
+		Customer customer = Customer.fromJSon(object.getJsonObject(KEY_CUSTOMER));
+		Robot[] robots = getRobotsFromJSon(object.getJsonArray(KEY_ROBOTS));
+		return new RealizedOrder(order, customer, robots, null);
+	}
+
+	private static Robot[] getRobotsFromJSon(JsonArray jsonArray) {
+		List<Robot> robots = new ArrayList<>();
+		for (JsonValue value : jsonArray) {
+			robots.add(Robot.fromJSon(value.asJsonObject()));
+		}
+		return robots.toArray(new Robot[0]);
 	}
 }

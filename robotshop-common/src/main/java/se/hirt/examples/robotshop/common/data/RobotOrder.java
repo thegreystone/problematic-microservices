@@ -29,7 +29,7 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotshop.order.data;
+package se.hirt.examples.robotshop.common.data;
 
 import java.io.Serializable;
 import java.io.StringReader;

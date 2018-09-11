@@ -1,8 +1,6 @@
 package se.hirt.examples.robotshop.loadgenerator;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class Names {
@@ -27,12 +25,7 @@ public class Names {
 	}
 
 	private static String [] extractStrings(String resourceName) throws IOException {
-		InputStream stream = Names.class.getClassLoader().getResourceAsStream(resourceName);
-		if (stream == null) {
-			System.out.println("Could not find resoure " + resourceName + "! Exiting...");
-			System.exit(0);			
-		}
-		return new String(stream.readAllBytes(), StandardCharsets.UTF_8).split("\\W+");
+		return Utils.getResource(resourceName).split("\\W+");
 	}
 	
 	public static String getRandomName() {

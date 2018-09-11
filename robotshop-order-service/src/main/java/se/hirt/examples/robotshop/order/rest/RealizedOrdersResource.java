@@ -45,10 +45,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import se.hirt.examples.robotshop.common.data.RealizedOrder;
+import se.hirt.examples.robotshop.common.data.RobotOrder;
 import se.hirt.examples.robotshop.common.util.Utils;
 import se.hirt.examples.robotshop.order.OrderManager;
-import se.hirt.examples.robotshop.order.data.RealizedOrder;
-import se.hirt.examples.robotshop.order.data.RobotOrder;
 
 /**
  * Rest API for orders that are ready for pickup.

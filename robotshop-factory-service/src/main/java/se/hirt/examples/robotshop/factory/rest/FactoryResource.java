@@ -31,6 +31,8 @@
  */
 package se.hirt.examples.robotshop.factory.rest;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -100,9 +102,14 @@ public class FactoryResource {
 					.build();
 		}
 
-		long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
-		createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
-		return Response.accepted(createObjectBuilder.build()).build();
+		try {
+			long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
+			createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
+			return Response.accepted(createObjectBuilder.build()).build();
+		} catch (RejectedExecutionException e) {
+			return Response.status(Status.SERVICE_UNAVAILABLE)
+					.entity(Utils.errorAsJSonString("Factory has too much work!")).build();
+		}
 	}
 
 	@GET

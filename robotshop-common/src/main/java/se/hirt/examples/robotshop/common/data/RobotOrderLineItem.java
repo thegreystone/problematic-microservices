@@ -29,23 +29,62 @@
  *
  * Copyright (C) Marcus Hirt, 2018
  */
-package se.hirt.examples.robotshop.order.data;
+package se.hirt.examples.robotshop.common.data;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
+import se.hirt.examples.robotshop.common.data.Color;
+import se.hirt.examples.robotshop.common.data.Robot;
+import se.hirt.examples.robotshop.common.data.RobotType;
 
 /**
- * Thrown when data validation fails. 
- * 
- * FIXME: Put these in a shared bundle.
+ * A line item in a purchase order for robots.
  * 
  * @author Marcus Hirt
  */
-public class ValidationException extends Exception {
-	private static final long serialVersionUID = 7205563550725471828L;
+public final class RobotOrderLineItem {
+	private final String robotTypeId;
+	private final Color color;
 
-	public ValidationException(String message, Throwable cause) {
-		super(message, cause);
+	public RobotOrderLineItem(String robotTypeId, Color color) {
+		this.robotTypeId = robotTypeId;
+		this.color = color;
 	}
 
-	public ValidationException(String message) {
-		super(message);
+	public RobotOrderLineItem(RobotType robotType, Color color) {
+		this(robotType.getTypeId(), color);
+	}
+
+	public JsonObjectBuilder toJSon() {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add(RobotType.KEY_ROBOT_TYPE, robotTypeId);
+		builder.add(Robot.KEY_COLOR, color.toString());
+		return builder;
+	}
+
+	public static RobotOrderLineItem fromJSon(JsonObject json) {
+		String type = json.getString(RobotType.KEY_ROBOT_TYPE);
+		Color color = Color.fromString(json.getString(Robot.KEY_COLOR));
+		return new RobotOrderLineItem(type, color);
+	}
+
+	public static RobotOrderLineItem fromJSon(JsonValue jsonValue) {
+		return fromJSon(jsonValue.asJsonObject());
+	}
+
+	public String getRobotTypeId() {
+		return robotTypeId;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public String toString() {
+		return String.format("LineItem [%s:%s, %s:%s]", RobotType.KEY_ROBOT_TYPE, getRobotTypeId(), Robot.KEY_COLOR,
+				getColor());
 	}
 }

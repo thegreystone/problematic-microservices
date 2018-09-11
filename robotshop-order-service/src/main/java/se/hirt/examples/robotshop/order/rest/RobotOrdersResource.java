@@ -32,6 +32,7 @@
 package se.hirt.examples.robotshop.order.rest;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -53,11 +54,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import se.hirt.examples.robotshop.common.data.Customer;
+import se.hirt.examples.robotshop.common.data.RobotOrder;
+import se.hirt.examples.robotshop.common.data.RobotOrderLineItem;
 import se.hirt.examples.robotshop.common.opentracing.OpenTracingFilter;
 import se.hirt.examples.robotshop.common.util.Utils;
 import se.hirt.examples.robotshop.order.OrderManager;
-import se.hirt.examples.robotshop.order.data.RobotOrder;
-import se.hirt.examples.robotshop.order.data.RobotOrderLineItem;
 
 /**
  * Rest API for orders not yet fulfilled.
@@ -97,9 +98,14 @@ public class RobotOrdersResource {
 		JsonValue jsonValue = jsonEntity.get(RobotOrder.KEY_LINE_ITEMS);
 		List<RobotOrderLineItem> lineItems = jsonValue.asJsonArray().stream().map(RobotOrderLineItem::fromJSon)
 				.collect(Collectors.toList());
-		RobotOrder newOrder = OrderManager.getInstance().createNewOrder(customerId,
-				lineItems.toArray(new RobotOrderLineItem[0]));
-		OrderManager.getInstance().dispatchOrder(newOrder, OpenTracingFilter.getActiveContext(request));
-		return Response.accepted(newOrder.toJSon().build()).build();
+		try {
+			RobotOrder newOrder = OrderManager.getInstance().createNewOrder(customerId,
+					lineItems.toArray(new RobotOrderLineItem[0]));
+			OrderManager.getInstance().dispatchOrder(newOrder, OpenTracingFilter.getActiveContext(request));
+			return Response.accepted(newOrder.toJSon().build()).build();
+		} catch (RejectedExecutionException e) {
+			return Response.status(Status.SERVICE_UNAVAILABLE)
+					.entity(Utils.errorAsJSonString("Order Service is overworked!")).build();
+		}
 	}
 }

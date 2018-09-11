@@ -31,6 +31,9 @@
  */
 package se.hirt.examples.robotshop.common.opentracing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.opentracing.Span;
 import io.opentracing.contrib.okhttp3.OkHttpClientSpanDecorator;
 import okhttp3.Connection;
@@ -41,7 +44,7 @@ import okhttp3.Response;
  * 
  * @author Marcus Hirt
  */
-public class SpanDecorator implements OkHttpClientSpanDecorator {
+public final class SpanDecorator implements OkHttpClientSpanDecorator {
 
 	@Override
 	public void onRequest(Request request, Span span) {
@@ -58,4 +61,10 @@ public class SpanDecorator implements OkHttpClientSpanDecorator {
 		span.setOperationName("Response: " + response.code());
 	}
 
+	
+	public static List<OkHttpClientSpanDecorator> getSpanDecorators() {
+		List<OkHttpClientSpanDecorator> decorators = new ArrayList<>(1);
+		decorators.add(new SpanDecorator());
+		return decorators;
+	}
 }

@@ -32,13 +32,13 @@
 package se.hirt.examples.robotshop.loadgenerator;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil;
 
 /**
  * Simple little load generator to this example application.
@@ -49,12 +49,12 @@ public class LoadGenerator {
 	private static ScheduledExecutorService threadPool;
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		Properties props = new Properties();
+		OpenTracingUtil.configureOpenTracing("RobotShop Load Generator");
+		Properties props = null;
 
 		if (args.length == 1) {
-			File f = new File(args[0]);
-			try (InputStream stream = new FileInputStream(f)) {
-				props.load(stream);
+			try {
+				props = Utils.loadPropertiesFromFile(new File(args[0]));
 			} catch (IOException e) {
 				System.out
 						.println("First argument, if available, must be the path to an existing load.properties file.");
@@ -62,8 +62,8 @@ public class LoadGenerator {
 				System.exit(2);
 			}
 		} else {
-			try (InputStream stream = LoadGenerator.class.getClassLoader().getResourceAsStream("load.properties")) {
-				props.load(stream);
+			try {
+				props = Utils.loadPropertiesFromResource("load.properties");
 			} catch (IOException e) {
 				System.out.println("Using default load.properties file failed.");
 				System.out.println("Error was: " + e.getMessage());

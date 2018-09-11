@@ -38,8 +38,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import se.hirt.examples.robotshop.common.data.RobotOrder;
 import se.hirt.examples.robotshop.order.OrderManager;
-import se.hirt.examples.robotshop.order.data.RobotOrder;
 
 /**
  * Resource for an order.

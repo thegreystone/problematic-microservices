@@ -42,6 +42,7 @@
 		<module>robotshop-customer-service</module>
 		<module>robotshop-factory-service</module>
 		<module>robotshop-order-service</module>
+		<module>robotshop-robot-load</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -38,7 +38,7 @@
 	<groupId>se.hirt.examples</groupId>
 	<artifactId>robotshop-robot-load</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Load Generator</name>
+	<name>Robotshop Load Generator</name>
 
 	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>
@@ -49,8 +49,13 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
 	<dependencies>
+		<dependency>
+			<groupId>se.hirt.examples</groupId>
+			<artifactId>robotshop-common</artifactId>
+			<version>${robotshop.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -63,4 +68,36 @@
 			<version>${okhttp.version}</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<finalName>load-generator</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<version>2.0.0</version>
+				<configuration>
+					<extraJvmArguments>-Xms128m</extraJvmArguments>
+					<assembleDirectory>target</assembleDirectory>
+					<programs>
+						<program>
+							<mainClass>se.hirt.examples.robotshop.loadgenerator.LoadWorker</mainClass>
+							<id>loadWorker</id>
+						</program>
+						<program>
+							<mainClass>se.hirt.examples.robotshop.loadgenerator.LoadGenerator</mainClass>
+							<id>loadGenerator</id>
+						</program>
+					</programs>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
