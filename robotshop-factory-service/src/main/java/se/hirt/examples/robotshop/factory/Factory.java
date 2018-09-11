@@ -43,6 +43,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
+import io.opentracing.References;
+import io.opentracing.Scope;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer.SpanBuilder;
+import io.opentracing.util.GlobalTracer;
 import se.hirt.examples.robotshop.common.data.Color;
 import se.hirt.examples.robotshop.common.data.Robot;
 import se.hirt.examples.robotshop.common.util.Logger;
@@ -53,7 +58,7 @@ import se.hirt.examples.robotshop.common.util.Utils;
  * 
  * @author Marcus Hirt
  */
-public class Factory {
+public final class Factory {
 	private final static Factory INSTANCE = new Factory();
 	private final static int DEFAULT_NUMBER_OF_PRODUCTION_LINES = 4;
 	private final static int JOB_QUEUE_SIZE = 500;
@@ -65,23 +70,29 @@ public class Factory {
 			TimeUnit.SECONDS, jobQueue);
 
 	private class ProductionJob implements Runnable {
-		private long serialNumber;
-		private String robotTypeId;
-		private Color paint;
+		private final long serialNumber;
+		private final String robotTypeId;
+		private final Color paint;
+		private final SpanContext spanContext;
 
-		public ProductionJob(long serialNumber, String robotTypeId, Color paint) {
+		public ProductionJob(long serialNumber, String robotTypeId, Color paint, SpanContext spanContext) {
 			this.serialNumber = serialNumber;
 			this.robotTypeId = robotTypeId;
 			this.paint = paint;
+			this.spanContext = spanContext;
 		}
 
 		@Override
 		public void run() {
-			Robot chassis = createChassis(serialNumber, robotTypeId);
-			// Takes some time to roll the robot over to the painting
-			Utils.sleep(10);
-			Robot paintedRobot = paintRobot(chassis, paint);
-			completedRobots.put(paintedRobot.getSerialNumber(), paintedRobot);
+			SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("inProduction");
+			spanBuilder.addReference(References.FOLLOWS_FROM, spanContext);
+			try (Scope scope = spanBuilder.startActive(true)) {
+				Robot chassis = createChassis(serialNumber, robotTypeId, scope.span().context());
+				// Takes some time to roll the robot over to the painting
+				Utils.sleep(10);
+				Robot paintedRobot = paintRobot(chassis, paint, scope.span().context());
+				completedRobots.put(paintedRobot.getSerialNumber(), paintedRobot);
+			}
 		}
 	}
 
@@ -92,14 +103,20 @@ public class Factory {
 	 *            the type of robot to start building.
 	 * @param paint
 	 *            the color of the robot.
+	 * @param spanContext
 	 * @return the serial number of the robot to be produced.
 	 * @throws RejectedExecutionException
 	 *             if factory is too busy.
 	 */
-	public long startBuildingRobot(final String robotTypeId, final Color paint) throws RejectedExecutionException {
+	public long startBuildingRobot(final String robotTypeId, final Color paint, SpanContext spanContext)
+			throws RejectedExecutionException {
 		final long serialNumber = SERIAL_ID_GENERATOR.getAndIncrement();
-		startProduction(serialNumber, robotTypeId, paint);
-		return serialNumber;
+		SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("startProduction");
+		try (Scope scope = spanBuilder.asChildOf(spanContext).startActive(true)) {
+			scope.span().setTag(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
+			startProduction(serialNumber, robotTypeId, paint, scope.span().context());
+			return serialNumber;
+		}
 	}
 
 	/**
@@ -119,22 +136,30 @@ public class Factory {
 		return completedRobots.remove(serialNumber);
 	}
 
-	private void startProduction(long serialNumber, String robotTypeId, Color paint) {
-		factoryLines.execute(new ProductionJob(serialNumber, robotTypeId, paint));
+	private void startProduction(long serialNumber, String robotTypeId, Color paint, SpanContext spanContext) {
+		factoryLines.execute(new ProductionJob(serialNumber, robotTypeId, paint, spanContext));
 	}
 
-	private static Robot paintRobot(Robot robotToPaint, Color paint) {
-		Logger.log("Painting robot!");
-		// Takes 20 ms to paint a robot. Yep, it's a kick ass robot factory.
-		Utils.sleep(50);
-		return new Robot(robotToPaint.getSerialNumber(), robotToPaint.getRobotType(), paint);
+	private static Robot paintRobot(Robot robotToPaint, Color paint, SpanContext spanContext) {
+		SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("paintingRobot");
+		spanBuilder.asChildOf(spanContext);
+		try (Scope scope = spanBuilder.startActive(true)) {
+			Logger.log("Painting robot!");
+			// Takes 20 ms to paint a robot. Yep, it's a kick ass robot factory.
+			Utils.sleep(50);
+			return new Robot(robotToPaint.getSerialNumber(), robotToPaint.getRobotType(), paint);
+		}
 	}
 
-	private static Robot createChassis(long serialNumber, String robotTypeId) {
-		Logger.log("Creating robot chassis!");
-		// Takes 30 ms to create a robot chassis. Yep, it's a kick ass robot factory.
-		Utils.sleep(50);
-		return new Robot(serialNumber, robotTypeId, null);
+	private static Robot createChassis(long serialNumber, String robotTypeId, SpanContext spanContext) {
+		SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("creatingChassis");
+		spanBuilder.asChildOf(spanContext);
+		try (Scope scope = spanBuilder.startActive(true)) {
+			Logger.log("Creating robot chassis!");
+			// Takes 30 ms to create a robot chassis. Yep, it's a kick ass robot factory.
+			Utils.sleep(50);
+			return new Robot(serialNumber, robotTypeId, null);
+		}
 	}
 
 	public static Factory getInstance() {

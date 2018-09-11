@@ -37,12 +37,14 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -53,6 +55,7 @@ import se.hirt.examples.robotshop.factory.data.DataAccess;
 import se.hirt.examples.robotshop.common.data.Color;
 import se.hirt.examples.robotshop.common.data.Robot;
 import se.hirt.examples.robotshop.common.data.RobotType;
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingFilter;
 
 /**
  * API for interacting with a factory producing robots.
@@ -76,7 +79,8 @@ public class FactoryResource {
 	@Path("/buildrobot")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response buildRobot(
-		@FormParam(RobotType.KEY_ROBOT_TYPE) String robotTypeId, @FormParam(Robot.KEY_COLOR) String color) {
+		@Context HttpServletRequest request, @FormParam(RobotType.KEY_ROBOT_TYPE) String robotTypeId,
+		@FormParam(Robot.KEY_COLOR) String color) {
 		JsonObjectBuilder createObjectBuilder = Json.createObjectBuilder();
 
 		if (robotTypeId == null) {
@@ -103,7 +107,8 @@ public class FactoryResource {
 		}
 
 		try {
-			long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
+			long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint,
+					OpenTracingFilter.getActiveContext(request));
 			createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
 			return Response.accepted(createObjectBuilder.build()).build();
 		} catch (RejectedExecutionException e) {
