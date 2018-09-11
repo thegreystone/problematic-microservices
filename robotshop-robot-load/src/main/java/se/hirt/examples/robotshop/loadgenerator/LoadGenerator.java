@@ -49,7 +49,7 @@ public class LoadGenerator {
 	private static ScheduledExecutorService threadPool;
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		OpenTracingUtil.configureOpenTracing("RobotShop Load Generator");
+		OpenTracingUtil.configureOpenTracing("RobotShop");
 		Properties props = null;
 
 		if (args.length == 1) {

@@ -267,7 +267,7 @@ public class OrderManager {
 
 		private void schedulePollingForCompletion(Long serial, CompletableFuture<Robot> future, SpanContext parent) {
 			RobotPickupJob job = new RobotPickupJob(serial, future, parent);
-			job.scheduledFuture = completionPollExecutor.scheduleAtFixedRate(job, 50, 9000, TimeUnit.MILLISECONDS);
+			job.scheduledFuture = completionPollExecutor.scheduleAtFixedRate(job, 70, 1000, TimeUnit.MILLISECONDS);
 		}
 
 		private Supplier<Long> dispatch(RobotOrderLineItem lineItem, SpanContext parent) {
