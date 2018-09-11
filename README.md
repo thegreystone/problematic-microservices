@@ -40,6 +40,8 @@ export FACTORY_SERVICE_LOCATION=http://<host>:<port>
 export CUSTOMER_SERVICE_LOCATION=http://<host>:<port>
 ```
 
+Note that for Windows, path size limits may make the launch scripts unuseable. If so, see running from within Eclipse.
+
 For some examples on API usage, see the following Postman collection:
 https://www.getpostman.com/collections/622fac93f3f20b1bd70b
 
@@ -64,3 +66,30 @@ docker run -d -p 9411:9411 openzipkin/zipkin
 ```
 
 Please see the tracing.properties file for more information.
+
+# Running in Eclipse
+To run the Microservices from within Eclipse, simply import the top project as a Maven project.
+
+1. Select File | Import from the Menu.
+2. In the Import Wizard, select Existing Maven Project.
+3. Select the project root as root and import.
+
+Once imported, the various launchers should be available. There are launchers for running the services individually,
+as well as starting them all together in one go (Launcher Group). The launch group can also be used for starting
+all the services in debug mode, making it easy to set break point and look at how the various services interact.
+
+Note that you will likely see some warnings from the Tomcat StandardJarScanner when starting the services from 
+within Eclipse, e.g.:
+
+```bash
+sep 11, 2018 12:25:14 EM org.apache.tomcat.util.scan.StandardJarScanner scan
+VARNING: Failed to scan ...
+```
+
+These can be safely ignored.
+
+# About
+Feel free to improve on the example application! I am no Micro-Services person by any means. That said, note that some 
+choices, like making the JSon serialization manually, were made to make it easier to create various problems later on, 
+or to make it easier to play around with the code.
+
