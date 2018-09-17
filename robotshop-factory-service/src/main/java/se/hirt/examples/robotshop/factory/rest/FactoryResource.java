@@ -81,6 +81,8 @@ public class FactoryResource {
 	public Response buildRobot(
 		@Context HttpServletRequest request, @FormParam(RobotType.KEY_ROBOT_TYPE) String robotTypeId,
 		@FormParam(Robot.KEY_COLOR) String color) {
+		OpenTracingFilter.setKeepOpen(request, true);
+
 		JsonObjectBuilder createObjectBuilder = Json.createObjectBuilder();
 
 		if (robotTypeId == null) {
@@ -107,8 +109,7 @@ public class FactoryResource {
 		}
 
 		try {
-			long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint,
-					OpenTracingFilter.getActiveContext(request));
+			long serialNumber = Factory.getInstance().startBuildingRobot(robotTypeId, paint);
 			createObjectBuilder.add(Robot.KEY_SERIAL_NUMBER, String.valueOf(serialNumber));
 			return Response.accepted(createObjectBuilder.build()).build();
 		} catch (RejectedExecutionException e) {

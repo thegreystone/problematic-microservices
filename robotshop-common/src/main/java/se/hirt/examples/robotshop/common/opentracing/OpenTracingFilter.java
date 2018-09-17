@@ -55,6 +55,7 @@ import io.opentracing.util.GlobalTracer;
  * @author Marcus Hirt
  */
 public class OpenTracingFilter implements ContainerRequestFilter, ContainerResponseFilter {
+	public static final String PROPERTY_KEEP_OPEN = "OT_KEEP_OPEN";
 	public static final String SERVER_SPAN_CONTEXT = OpenTracingFilter.class.getName() + ".activeSpanContext";
 	public static final String SERVER_SPAN_SCOPE = OpenTracingFilter.class.getName() + ".activeSpanScope";
 
@@ -74,11 +75,21 @@ public class OpenTracingFilter implements ContainerRequestFilter, ContainerRespo
 	@Override
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
 			throws IOException {
-		if (isTraced(requestContext)) {
+		if (isTraced(requestContext) && !keepOpen(requestContext.getProperty(PROPERTY_KEEP_OPEN))) {
 			Scope scope = getActiveScope(httpRequest);
 			scope.span().finish();
 			scope.close();
 		}
+	}
+
+	private boolean keepOpen(Object property) {
+		if (property == null) {
+			return true;
+		}
+		if (property instanceof Boolean) {
+			return (Boolean) property;
+		}
+		return true;
 	}
 
 	private boolean isTraced(ContainerRequestContext requestContext) {
@@ -119,5 +130,16 @@ public class OpenTracingFilter implements ContainerRequestFilter, ContainerRespo
 	 */
 	public static SpanContext getActiveContext(HttpServletRequest request) {
 		return (SpanContext) request.getAttribute(SERVER_SPAN_CONTEXT);
+	}
+
+	/**
+	 * Does not automatically close this request.
+	 * 
+	 * @param request
+	 *            the request from which to retrieve the scope.
+	 * @return the active scope for the request.
+	 */
+	public static void setKeepOpen(HttpServletRequest request, Boolean keepOpen) {
+		request.setAttribute(PROPERTY_KEEP_OPEN, keepOpen);
 	}
 }

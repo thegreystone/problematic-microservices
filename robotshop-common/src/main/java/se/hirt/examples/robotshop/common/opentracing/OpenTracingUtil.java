@@ -34,6 +34,8 @@ package se.hirt.examples.robotshop.common.opentracing;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import brave.Tracing;
@@ -44,6 +46,7 @@ import io.jaegertracing.Configuration.SamplerConfiguration;
 import io.jaegertracing.Configuration.SenderConfiguration;
 import io.jaegertracing.samplers.ConstSampler;
 import io.opentracing.Tracer;
+import io.opentracing.log.Fields;
 import io.opentracing.util.GlobalTracer;
 import se.hirt.examples.robotshop.common.util.Logger;
 import se.hirt.examples.robotshop.common.util.Utils;
@@ -101,6 +104,23 @@ public class OpenTracingUtil {
 	 */
 	public static void configureOpenTracing(String componentName) {
 		configureOpenTracing(CONFIGURATION, componentName);
+	}
+
+	/**
+	 * Returns a map with the information appropriate to log on exception.
+	 * 
+	 * @param t
+	 *            the exception to log.
+	 * @return the map with information suitable for the {@link io.opentracing.Span#log(Map)}
+	 *         method.
+	 */
+	public static Map<String, Object> getSpanLogMap(Throwable t) {
+		// Want to keep this compilable with JDK 8, so not using Map.of...
+		Map<String, Object> map = new HashMap<>();
+		map.put(Fields.EVENT, "error");
+		map.put(Fields.ERROR_OBJECT, t);
+		map.put(Fields.MESSAGE, t.getMessage());
+		return map;
 	}
 
 	private static void configureOpenTracing(Properties configuration, String serviceName) {

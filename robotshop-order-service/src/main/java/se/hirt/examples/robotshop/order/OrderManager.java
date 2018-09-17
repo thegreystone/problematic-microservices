@@ -60,6 +60,7 @@ import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
 import io.opentracing.References;
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer.SpanBuilder;
 import io.opentracing.contrib.okhttp3.TracingCallFactory;
@@ -77,6 +78,7 @@ import se.hirt.examples.robotshop.common.data.RobotOrder;
 import se.hirt.examples.robotshop.common.data.RobotOrderLineItem;
 import se.hirt.examples.robotshop.common.data.RobotType;
 import se.hirt.examples.robotshop.common.data.ValidationException;
+import se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil;
 import se.hirt.examples.robotshop.common.opentracing.SpanDecorator;
 
 /**
@@ -141,11 +143,12 @@ public class OrderManager {
 				return;
 			}
 
-			SpanBuilder buildSpan = GlobalTracer.get().buildSpan("pickupFromFactoryAttempt");
-			buildSpan.withTag(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
-			buildSpan.asChildOf(parent);
+			SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("pickupFromFactoryAttempt");
+			spanBuilder.withTag(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
+			spanBuilder.asChildOf(parent);
+			Span span = spanBuilder.start();
 
-			try (Scope scope = buildSpan.startActive(true)) {
+			try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 				okhttp3.HttpUrl.Builder httpBuilder = HttpUrl.parse(FACTORY_SERVICE_LOCATION + "/factory/pickup")
 						.newBuilder();
 				httpBuilder.addQueryParameter(Robot.KEY_SERIAL_NUMBER, String.valueOf(serial));
@@ -160,9 +163,14 @@ public class OrderManager {
 						scheduledFuture.cancel(false);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					span.log(OpenTracingUtil.getSpanLogMap(e));
 					scheduledFuture.cancel(false);
 				}
+			} catch (Throwable t) {
+				span.log(OpenTracingUtil.getSpanLogMap(t));
+				throw t;
+			} finally {
+				span.finish();
 			}
 		}
 	}
@@ -178,12 +186,13 @@ public class OrderManager {
 
 		@Override
 		public Long get() {
-			SpanBuilder buildSpan = GlobalTracer.get().buildSpan("buildRobotRequest");
-			buildSpan.withTag(RobotType.KEY_ROBOT_TYPE, lineItem.getRobotTypeId());
-			buildSpan.withTag(Robot.KEY_COLOR, lineItem.getColor().toString());
-			buildSpan.asChildOf(parent);
+			SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("buildRobotRequest");
+			spanBuilder.withTag(RobotType.KEY_ROBOT_TYPE, lineItem.getRobotTypeId());
+			spanBuilder.withTag(Robot.KEY_COLOR, lineItem.getColor().toString());
+			spanBuilder.asChildOf(parent);
+			Span span = spanBuilder.start();
 
-			try (Scope scope = buildSpan.startActive(true)) {
+			try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 				FormBody.Builder formBuilder = new FormBody.Builder();
 				formBuilder.add(RobotType.KEY_ROBOT_TYPE, lineItem.getRobotTypeId());
 				formBuilder.add(Robot.KEY_COLOR, lineItem.getColor().toString());
@@ -194,9 +203,13 @@ public class OrderManager {
 				try {
 					Response response = httpClient.newCall(req).execute();
 					return parseSerial(response.body().string());
-				} catch (Throwable ioe) {
-					ioe.printStackTrace();
+				} catch (Throwable e) {
+					span.log(OpenTracingUtil.getSpanLogMap(e));
 				}
+			} catch (Throwable t) {
+				span.log(OpenTracingUtil.getSpanLogMap(t));
+			} finally {
+				span.finish();
 			}
 			return -1L;
 		}
@@ -213,34 +226,35 @@ public class OrderManager {
 
 	private final class OrderJob implements Runnable {
 		private final RobotOrder order;
-		private final SpanContext initiatior;
+		private final Span parent;
 
-		public OrderJob(RobotOrder order, SpanContext initiator) {
+		public OrderJob(RobotOrder order, Span parent) {
 			this.order = order;
-			this.initiatior = initiator;
+			this.parent = parent;
 		}
 
 		@Override
 		public void run() {
-			try {
-				SpanBuilder buildSpan = GlobalTracer.get().buildSpan("orderJob");
-				buildSpan.withTag(RobotOrder.KEY_ORDER_ID, String.valueOf(order.getOrderId()));
-				buildSpan.addReference(References.FOLLOWS_FROM, initiatior);
-				try (Scope scope = buildSpan.startActive(true)) {
-					Customer customer = validateUser(order.getCustomerId(), scope.span().context());
-					Collection<CompletableFuture<Robot>> robots = dispatch(order.getLineItems(),
-							scope.span().context());
-					CompletableFuture<Void> allOf = CompletableFuture.allOf(robots.toArray(new CompletableFuture[0]));
-					allOf.get();
-					List<Robot> collect = robots.stream().map((robot) -> get(robot)).collect(Collectors.toList());
+			SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("orderJob");
+			spanBuilder.withTag(RobotOrder.KEY_ORDER_ID, String.valueOf(order.getOrderId()));
+			spanBuilder.addReference(References.FOLLOWS_FROM, parent.context());
+			Span span = spanBuilder.start();
+			try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
+				Customer customer = validateUser(order.getCustomerId(), scope.span().context());
+				Collection<CompletableFuture<Robot>> robots = dispatch(order.getLineItems(), scope.span().context());
+				CompletableFuture<Void> allOf = CompletableFuture.allOf(robots.toArray(new CompletableFuture[0]));
+				allOf.get();
+				List<Robot> collect = robots.stream().map((robot) -> get(robot)).collect(Collectors.toList());
 
-					// TODO verify that all list items got realized - otherwise add errors for the ones missing etc
-					completedOrders.put(order.getOrderId(),
-							new RealizedOrder(order, customer, collect.toArray(new Robot[0]), null));
-				}
+				// TODO verify that all list items got realized - otherwise add errors for the ones missing etc
+				completedOrders.put(order.getOrderId(),
+						new RealizedOrder(order, customer, collect.toArray(new Robot[0]), null));
 			} catch (Throwable t) {
+				span.log(OpenTracingUtil.getSpanLogMap(t));
 				completedOrders.put(order.getOrderId(), new RealizedOrder(order, null, null, t));
-				t.printStackTrace();
+			} finally {
+				span.finish();
+				parent.finish();
 			}
 			orderQueue.remove(order.getOrderId());
 		}
@@ -302,13 +316,10 @@ public class OrderManager {
 
 	/**
 	 * @param order
-	 * @param spanContext
-	 *            need to pass the open tracing context for async processing. FIXME: Got to be a
-	 *            better way than passing around non-functional stuff.
 	 */
-	public void dispatchOrder(RobotOrder order, SpanContext spanContext) {
+	public void dispatchOrder(RobotOrder order) {
 		orderQueue.put(order.getOrderId(), order);
-		orderDispatcher.execute(new OrderJob(order, spanContext));
+		orderDispatcher.execute(new OrderJob(order, GlobalTracer.get().scopeManager().active().span()));
 	}
 
 	/**

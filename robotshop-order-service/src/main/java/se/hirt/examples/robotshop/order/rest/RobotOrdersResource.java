@@ -89,6 +89,8 @@ public class RobotOrdersResource {
 	@Path("/new")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createNewOrder(@Context HttpServletRequest request, JsonObject jsonEntity) {
+		OpenTracingFilter.setKeepOpen(request, true);
+
 		String customerIdStr = jsonEntity.getString(Customer.KEY_CUSTOMER_ID);
 		if (customerIdStr == null) {
 			return Response.status(Status.BAD_REQUEST)
@@ -101,7 +103,7 @@ public class RobotOrdersResource {
 		try {
 			RobotOrder newOrder = OrderManager.getInstance().createNewOrder(customerId,
 					lineItems.toArray(new RobotOrderLineItem[0]));
-			OrderManager.getInstance().dispatchOrder(newOrder, OpenTracingFilter.getActiveContext(request));
+			OrderManager.getInstance().dispatchOrder(newOrder);
 			return Response.accepted(newOrder.toJSon().build()).build();
 		} catch (RejectedExecutionException e) {
 			return Response.status(Status.SERVICE_UNAVAILABLE)

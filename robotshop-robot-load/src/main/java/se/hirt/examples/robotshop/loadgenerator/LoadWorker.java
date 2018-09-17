@@ -53,6 +53,7 @@ import javax.validation.ValidationException;
 
 import io.opentracing.References;
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.Tracer.SpanBuilder;
@@ -130,8 +131,10 @@ public class LoadWorker implements Runnable {
 	}
 
 	private void doFullRegisterOrderAndRemove() throws InterruptedException, ExecutionException {
-		SpanBuilder builder = getTracer().buildSpan("fullSystemTest");
-		try (Scope scope = builder.startActive(true)) {
+		SpanBuilder spanBuilder = getTracer().buildSpan("fullSystemTest");
+		Span span = spanBuilder.start();
+
+		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 			SpanContext parent = scope.span().context();
 			Customer c = registerRandomCustomer(scope.span().context());
 
@@ -153,12 +156,17 @@ public class LoadWorker implements Runnable {
 			robotOrderCompletable.thenAccept((order) -> awaitOrderCompletion(order, realizedOrderFuture, parent));
 			// Once the order is realized, we will remove the customer.
 			realizedOrderFuture.thenApply((realizedOrder) -> removeOwner(realizedOrder, parent));
+		} catch (Throwable t) {
+			span.log(OpenTracingUtil.getSpanLogMap(t));
+			throw t;
+		} finally {
+			span.finish();
 		}
 	}
 
 	private String removeOwner(RealizedOrder realizedOrder, SpanContext ctx) {
-		System.out.println("User " + realizedOrder.getCustomer() + " picked up order #" + realizedOrder.getOrder().getOrderId()
-				+ ". Now removing customer.");
+		System.out.println("User " + realizedOrder.getCustomer() + " picked up order #"
+				+ realizedOrder.getOrder().getOrderId() + ". Now removing customer.");
 
 		Customer customer = realizedOrder.getCustomer();
 		String url = urlCustomer + "/customers/" + customer.getId();
@@ -166,8 +174,9 @@ public class LoadWorker implements Runnable {
 
 		SpanBuilder spanBuilder = getTracer().buildSpan("DELETE: " + url);
 		spanBuilder.addReference(References.FOLLOWS_FROM, ctx);
+		Span span = spanBuilder.start();
 
-		try (Scope scope = spanBuilder.startActive(true)) {
+		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 			Response response = httpClient.newCall(request).execute();
 			if (!response.isSuccessful()) {
 				Logger.log("Failed to call DELETE:" + url);
@@ -176,8 +185,10 @@ public class LoadWorker implements Runnable {
 			System.out.println("User " + realizedOrder.getCustomer() + " removed.");
 			// FIXME: Get from return value
 			return String.valueOf(customer.getId());
-		} catch (IOException e) {
-			Logger.log(e.getMessage());
+		} catch (Throwable t) {
+			span.log(OpenTracingUtil.getSpanLogMap(t));
+		} finally {
+			span.finish();
 		}
 		return null;
 	}
@@ -208,8 +219,9 @@ public class LoadWorker implements Runnable {
 
 		SpanBuilder spanBuilder = getTracer().buildSpan("POST: " + url);
 		spanBuilder.asChildOf(parent);
+		Span span = spanBuilder.start();
 
-		try (Scope scope = spanBuilder.startActive(true)) {
+		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 			Response response = httpClient.newCall(request).execute();
 			if (!response.isSuccessful()) {
 				Logger.log("Failed to call POST:" + url);
@@ -218,7 +230,9 @@ public class LoadWorker implements Runnable {
 			}
 			return RobotOrder.fromJSon(response.body().string());
 		} catch (IOException e) {
-			Logger.log(e.getMessage());
+			span.log(OpenTracingUtil.getSpanLogMap(e));
+		} finally {
+			span.finish();
 		}
 		return null;
 	}
@@ -265,16 +279,19 @@ public class LoadWorker implements Runnable {
 
 		SpanBuilder spanBuilder = getTracer().buildSpan("GET: " + url);
 		spanBuilder.addReference(kindOfSpanReference, parent);
+		Span span = spanBuilder.start();
 
-		try (Scope scope = spanBuilder.startActive(true)) {
+		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 			Response response = httpClient.newCall(request).execute();
 			if (!response.isSuccessful()) {
 				Logger.log("Failed to call GET:" + url);
 				return null;
 			}
 			return response.body().string();
-		} catch (IOException e) {
-			Logger.log(e.getMessage());
+		} catch (Throwable t) {
+			span.log(OpenTracingUtil.getSpanLogMap(t));
+		} finally {
+			span.finish();
 		}
 		return null;
 	}
@@ -286,16 +303,19 @@ public class LoadWorker implements Runnable {
 
 		SpanBuilder spanBuilder = getTracer().buildSpan("Create random user");
 		spanBuilder.asChildOf(parent);
+		Span span = spanBuilder.start();
 
-		try (Scope scope = spanBuilder.startActive(true)) {
+		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
 			Response response = httpClient.newCall(request).execute();
 			if (!response.isSuccessful()) {
 				Logger.log("Failed to create customer " + newCustomerJSon);
 				return null;
 			}
 			return Customer.fromJSon(response.body().string());
-		} catch (IOException e) {
-			Logger.log(e.getMessage());
+		} catch (Throwable t) {
+			span.log(OpenTracingUtil.getSpanLogMap(t));
+		} finally {
+			span.finish();
 		}
 		return null;
 	}
