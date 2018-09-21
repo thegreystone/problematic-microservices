@@ -38,7 +38,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
@@ -63,14 +65,14 @@ import se.hirt.examples.robotshop.common.util.Utils;
  */
 public final class Factory {
 	private final static Factory INSTANCE = new Factory();
-	private final static int DEFAULT_NUMBER_OF_PRODUCTION_LINES = 4;
+	private final static int DEFAULT_NUMBER_OF_PRODUCTION_LINES = 50;
 	private final static int JOB_QUEUE_SIZE = 500;
 	private final static AtomicLong SERIAL_ID_GENERATOR = new AtomicLong();
 
 	private final BlockingQueue<Runnable> jobQueue = new ArrayBlockingQueue<>(JOB_QUEUE_SIZE);
 	private final Map<Long, Robot> completedRobots = new ConcurrentHashMap<>();
 	private final Executor factoryLines = new ThreadPoolExecutor(0, DEFAULT_NUMBER_OF_PRODUCTION_LINES, 60,
-			TimeUnit.SECONDS, jobQueue);
+			TimeUnit.SECONDS, jobQueue, new FactoryThreadFactory());
 
 	private class ProductionJob implements Runnable {
 		private final long serialNumber;
@@ -104,6 +106,15 @@ public final class Factory {
 				span.finish();
 				parent.finish();
 			}
+		}
+	}
+	
+	private static class FactoryThreadFactory implements ThreadFactory {
+		private final static ThreadGroup GROUP = new ThreadGroup("Factory");
+		private final static AtomicInteger COUNT = new AtomicInteger(); 
+		@Override
+		public Thread newThread(Runnable r) {
+			return new Thread(GROUP, "Factory Line " + COUNT.getAndIncrement());
 		}
 	}
 
