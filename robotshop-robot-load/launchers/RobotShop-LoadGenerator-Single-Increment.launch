@@ -18,4 +18,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="se.hirt.examples.robotshop.loadgenerator.LoadWorker"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="robotshop-robot-load"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+FlightRecorder -XX:FlightRecorderOptions=stackdepth=128 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -Djava.net.perferIPv4Stack=true -XX:StartFlightRecording=name=LoadGenerator,path-to-gc-roots=true,settings=${resource_loc:/robotshop-common/jfr/robotshop.jfc},maxsize=128MB"/>
 </launchConfiguration>
