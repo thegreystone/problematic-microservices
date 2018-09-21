@@ -75,6 +75,17 @@ public class FactoryResource {
 		return arrayBuilder.build();
 	}
 
+	@GET
+	@Path("/inproduction/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonArray listInProduction() {
+		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+		for (Long serialId : Factory.getInstance().getInProduction()) {
+			arrayBuilder.add(String.valueOf(serialId));
+		}
+		return arrayBuilder.build();
+	}
+
 	@POST
 	@Path("/buildrobot")
 	@Produces(MediaType.APPLICATION_JSON)

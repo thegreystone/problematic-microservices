@@ -47,7 +47,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -87,6 +89,7 @@ import se.hirt.examples.robotshop.common.opentracing.SpanDecorator;
  * @author Marcus Hirt
  */
 public class OrderManager {
+	private final static ThreadGroup GROUP = new ThreadGroup("Order");
 	private final static int JOB_QUEUE_SIZE = 500;
 	private final static String CUSTOMER_SERVICE_LOCATION;
 	private final static String FACTORY_SERVICE_LOCATION;
@@ -95,19 +98,35 @@ public class OrderManager {
 	private final static String DEFAULT_FACTORY_SERVICE_LOCATION = "http://localhost:8082";
 
 	private final static OrderManager INSTANCE = new OrderManager();
-	private final static int DEFAULT_NUMBER_OF_ORDER_DISPATCHERS = 4;
+	private final static int DEFAULT_NUMBER_OF_ORDER_DISPATCHERS = 25;
 	private final static AtomicLong SERIAL_ID_GENERATOR = new AtomicLong();
 
 	private final Map<Long, RobotOrder> orderQueue = new ConcurrentHashMap<>();
 	private final Map<Long, RealizedOrder> completedOrders = new ConcurrentHashMap<>();
 	private final BlockingQueue<Runnable> jobQueue = new ArrayBlockingQueue<>(JOB_QUEUE_SIZE);
-	private final Executor orderDispatcher = new ThreadPoolExecutor(0, DEFAULT_NUMBER_OF_ORDER_DISPATCHERS, 60,
-			TimeUnit.SECONDS, jobQueue);
-	private final ScheduledExecutorService completionPollExecutor = Executors.newScheduledThreadPool(4);
+	private final Executor orderDispatcher = new ThreadPoolExecutor(1, DEFAULT_NUMBER_OF_ORDER_DISPATCHERS, 60,
+			TimeUnit.SECONDS, jobQueue, new OrderThreadFactory());
+	private final ScheduledExecutorService completionPollExecutor = Executors.newScheduledThreadPool(4, new PollThreadFactory());
 
 	private final Call.Factory httpClient = new TracingCallFactory(new OkHttpClient(), GlobalTracer.get(),
 			SpanDecorator.getSpanDecorators());
 
+	private final static class OrderThreadFactory implements ThreadFactory {
+		private final static AtomicInteger COUNT = new AtomicInteger(); 
+		@Override
+		public Thread newThread(Runnable r) {
+			return new Thread(GROUP, r, "Order Dispatcher " + COUNT.getAndIncrement());
+		}
+	}
+
+	private final static class PollThreadFactory implements ThreadFactory {
+		private final static AtomicInteger COUNT = new AtomicInteger(); 
+		@Override
+		public Thread newThread(Runnable r) {
+			return new Thread(GROUP, r, "Completion Poller " + COUNT.getAndIncrement());
+		}
+	}
+	
 	static {
 		// Setting up service locations...
 		String robotFactory = System.getenv("FACTORY_SERVICE_LOCATION");

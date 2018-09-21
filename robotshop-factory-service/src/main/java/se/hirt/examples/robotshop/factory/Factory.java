@@ -33,11 +33,13 @@ package se.hirt.examples.robotshop.factory;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,14 +67,21 @@ import se.hirt.examples.robotshop.common.util.Utils;
  */
 public final class Factory {
 	private final static Factory INSTANCE = new Factory();
-	private final static int DEFAULT_NUMBER_OF_PRODUCTION_LINES = 50;
+	private final static int MAX_NUMBER_OF_PRODUCTION_LINES = 50;
 	private final static int JOB_QUEUE_SIZE = 500;
 	private final static AtomicLong SERIAL_ID_GENERATOR = new AtomicLong();
 
 	private final BlockingQueue<Runnable> jobQueue = new ArrayBlockingQueue<>(JOB_QUEUE_SIZE);
 	private final Map<Long, Robot> completedRobots = new ConcurrentHashMap<>();
-	private final Executor factoryLines = new ThreadPoolExecutor(0, DEFAULT_NUMBER_OF_PRODUCTION_LINES, 60,
-			TimeUnit.SECONDS, jobQueue, new FactoryThreadFactory());
+	private final Executor factoryLines = new ThreadPoolExecutor(4, MAX_NUMBER_OF_PRODUCTION_LINES, 20,
+			TimeUnit.SECONDS, jobQueue, new FactoryThreadFactory(), new RejectedExecutionHandler() {
+				@Override
+				public void rejectedExecution(Runnable r, java.util.concurrent.ThreadPoolExecutor executor) {
+					Logger.log("Factory rejected build request - queue full! " + r.toString());
+				}
+			});
+	// For debugging purposes...
+	private final Map<Long, ProductionJob> jobsInProduction = new ConcurrentHashMap<Long, Factory.ProductionJob>();
 
 	private class ProductionJob implements Runnable {
 		private final long serialNumber;
@@ -99,6 +108,7 @@ public final class Factory {
 				Utils.sleep(10);
 				Robot paintedRobot = paintRobot(chassis, paint, scope.span().context());
 				completedRobots.put(paintedRobot.getSerialNumber(), paintedRobot);
+				jobsInProduction.remove(serialNumber);
 			} catch (Throwable t) {
 				span.log(OpenTracingUtil.getSpanLogMap(t));
 				throw t;
@@ -107,14 +117,19 @@ public final class Factory {
 				parent.finish();
 			}
 		}
+		
+		public String toString() {
+			return "ProductionJob: " + serialNumber + ", type: " + robotTypeId + ", color: " + paint.toString();
+		}
 	}
-	
+
 	private static class FactoryThreadFactory implements ThreadFactory {
 		private final static ThreadGroup GROUP = new ThreadGroup("Factory");
-		private final static AtomicInteger COUNT = new AtomicInteger(); 
+		private final static AtomicInteger COUNT = new AtomicInteger();
+
 		@Override
 		public Thread newThread(Runnable r) {
-			return new Thread(GROUP, "Factory Line " + COUNT.getAndIncrement());
+			return new Thread(GROUP, r, "Factory Line " + COUNT.getAndIncrement());
 		}
 	}
 
@@ -155,7 +170,9 @@ public final class Factory {
 	}
 
 	private void startProduction(long serialNumber, String robotTypeId, Color paint, Span parent) {
-		factoryLines.execute(new ProductionJob(serialNumber, robotTypeId, paint, parent));
+		ProductionJob job = new ProductionJob(serialNumber, robotTypeId, paint, parent);
+		jobsInProduction.put(serialNumber, job);
+		factoryLines.execute(job);
 	}
 
 	private static Robot paintRobot(Robot robotToPaint, Color paint, SpanContext spanContext) {
@@ -184,5 +201,9 @@ public final class Factory {
 
 	public static Factory getInstance() {
 		return INSTANCE;
+	}
+
+	public Set<Long> getInProduction() {
+		return jobsInProduction.keySet();
 	}
 }

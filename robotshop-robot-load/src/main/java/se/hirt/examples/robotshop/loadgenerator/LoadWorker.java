@@ -86,7 +86,7 @@ public class LoadWorker implements Runnable {
 
 	private final static MediaType JSON = okhttp3.MediaType.parse("application/json; charset=utf-8");
 
-	private final static ScheduledExecutorService COMPLETION_POLL_EXECUTOR = Executors.newScheduledThreadPool(4);;
+	private final static ScheduledExecutorService COMPLETION_POLL_EXECUTOR = Executors.newScheduledThreadPool(4);
 	private final Call.Factory httpClient = new TracingCallFactory(new OkHttpClient(), GlobalTracer.get(),
 			SpanDecorator.getSpanDecorators());
 
