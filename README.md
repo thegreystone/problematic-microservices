@@ -51,7 +51,7 @@ The example has support for two common tracers supporting Open Tracing - jaeger 
 To switch tracer, either update robotshop-common/src/main/resources/tracing.properties, or set the 
 system property tracingProperties to path of the properties file to use.
 
-For convenience, here is instruction on how to run Jaeger (or Zipkin) locally via docker:
+For convenience, here are instructions on how to run Jaeger or Zipkin locally via docker:
 
 ## Jaeger:
 
