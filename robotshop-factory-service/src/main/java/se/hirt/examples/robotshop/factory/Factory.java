@@ -181,7 +181,7 @@ public final class Factory {
 		spanBuilder.withTag(Robot.KEY_COLOR, paint.toString());
 		try (Scope scope = spanBuilder.startActive(true)) {
 			Logger.log("Painting robot!");
-			// Takes 20 ms to paint a robot. Yep, it's a kick ass robot factory.
+			// Takes 50 ms to paint a robot. Yep, it's a kick ass robot factory.
 			Utils.sleep(50);
 			return new Robot(robotToPaint.getSerialNumber(), robotToPaint.getRobotType(), paint);
 		}
@@ -193,8 +193,8 @@ public final class Factory {
 		spanBuilder.withTag(RobotType.KEY_ROBOT_TYPE, robotTypeId);
 		try (Scope scope = spanBuilder.startActive(true)) {
 			Logger.log("Creating robot chassis!");
-			// Takes 30 ms to create a robot chassis. Yep, it's a kick ass robot factory.
-			Utils.sleep(50);
+			// Takes 70 ms to create a robot chassis. Yep, it's a kick ass robot factory.
+			Utils.sleep(70);
 			return new Robot(serialNumber, robotTypeId, null);
 		}
 	}

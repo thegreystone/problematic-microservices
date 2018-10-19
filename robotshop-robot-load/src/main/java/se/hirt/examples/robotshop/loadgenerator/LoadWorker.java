@@ -132,35 +132,38 @@ public class LoadWorker implements Runnable {
 
 	private void doFullRegisterOrderAndRemove() throws InterruptedException, ExecutionException {
 		SpanBuilder spanBuilder = getTracer().buildSpan("fullSystemTest");
-		Span span = spanBuilder.start();
+		final Span span = spanBuilder.start();
+		try {
+			SpanContext parentContext = span.context();
 
-		try (Scope scope = GlobalTracer.get().scopeManager().activate(span, false)) {
-			SpanContext parent = scope.span().context();
-			Customer c = registerRandomCustomer(scope.span().context());
-
-			// Maybe not get these guys over and over, looks pretty in the traces though...
+			// Register 
 			CompletableFuture<Customer> newCustomer = CompletableFuture
-					.supplyAsync(() -> registerRandomCustomer(parent));
-			CompletableFuture<RobotType[]> availableTypes = CompletableFuture.supplyAsync(() -> getAllTypes(parent));
-			CompletableFuture<Color[]> availableColors = CompletableFuture.supplyAsync(() -> getAllColors(parent));
+					.supplyAsync(() -> registerRandomCustomer(parentContext));
+			// Maybe not get the types and colors over and over. Looks pretty in the traces though...
+			CompletableFuture<RobotType[]> availableTypes = CompletableFuture
+					.supplyAsync(() -> getAllTypes(parentContext));
+			CompletableFuture<Color[]> availableColors = CompletableFuture
+					.supplyAsync(() -> getAllColors(parentContext));
 			CompletableFuture.allOf(newCustomer, availableTypes, availableColors);
 
-			// First completion stage done. Now we can create the order			
+			Customer customer = newCustomer.get();
+
+			// First completion stage done. Now we can create the order
 			List<RobotOrderLineItem> lineItems = createRandomOrder(availableTypes.get(), availableColors.get());
 			CompletableFuture<RobotOrder> robotOrderCompletable = CompletableFuture
-					.supplyAsync(() -> postOrder(c, lineItems, parent));
+					.supplyAsync(() -> postOrder(customer, lineItems, parentContext));
 
 			// Rest will happen asynchrously when data is available...
 			CompletableFuture<RealizedOrder> realizedOrderFuture = new CompletableFuture<RealizedOrder>();
 			// When we have the order, we schedule the polling for an available order...
-			robotOrderCompletable.thenAccept((order) -> awaitOrderCompletion(order, realizedOrderFuture, parent));
+			robotOrderCompletable
+					.thenAccept((order) -> awaitOrderCompletion(order, realizedOrderFuture, parentContext));
 			// Once the order is realized, we will remove the customer.
-			realizedOrderFuture.thenApply((realizedOrder) -> removeOwner(realizedOrder, parent));
+			realizedOrderFuture.thenApply((realizedOrder) -> removeOwner(realizedOrder, parentContext))
+					.thenAccept((customerId) -> span.finish());
 		} catch (Throwable t) {
 			span.log(OpenTracingUtil.getSpanLogMap(t));
 			throw t;
-		} finally {
-			span.finish();
 		}
 	}
 
