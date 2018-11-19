@@ -104,7 +104,7 @@ public class LoadWorker implements Runnable {
 		urlCustomer = configuration.getProperty("urlCustomerService");
 		urlFactory = configuration.getProperty("urlFactoryService");
 		urlOrder = configuration.getProperty("urlOrderService");
-		minRobotsPerOrder = Integer.parseInt(configuration.getProperty("minRobotsPerOrder", "2"));
+		minRobotsPerOrder = Integer.parseInt(configuration.getProperty("minRobotsPerOrder", "3"));
 		maxRobotsPerOrder = Integer.parseInt(configuration.getProperty("maxRobotsPerOrder", "10"));
 		validate();
 	}
@@ -241,7 +241,7 @@ public class LoadWorker implements Runnable {
 	}
 
 	private List<RobotOrderLineItem> createRandomOrder(RobotType[] robotTypes, Color[] colors) {
-		int robotCount = RND.nextInt(maxRobotsPerOrder - minRobotsPerOrder) + 1;
+		int robotCount = minRobotsPerOrder + RND.nextInt(maxRobotsPerOrder - minRobotsPerOrder);
 
 		List<RobotOrderLineItem> lineItems = new ArrayList<>(robotCount);
 
