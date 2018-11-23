@@ -51,6 +51,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<zipkin.version>2.7.6</zipkin.version>
 		<jaeger.version>0.27.0</jaeger.version>
+		<jfrtracer.version>0.0.1</jfrtracer.version>
 	</properties>
 	
 	<dependencies>
@@ -113,7 +114,7 @@
 		<dependency>
 			<groupId>se.hirt.jmc</groupId>
 			<artifactId>jfr-tracer</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${jfrtracer.version}</version>
 		</dependency>
 	</dependencies>
 </project>
