@@ -67,6 +67,9 @@ docker run -d -p 9411:9411 openzipkin/zipkin
 
 Please see the tracing.properties file for more information.
 
+## The JFR Tracer
+Note that all of the tracers will use the delegating [JFR Tracer](https://github.com/thegreystone/jfr-tracer), making it easy to correlate span IDs with information from the JDK Flight Recorder. Simply dump the flight recorder to get detailed information about what is really going on.
+
 # Running in Eclipse
 To run the Microservices from within Eclipse, simply import the top project as a Maven project.
 
