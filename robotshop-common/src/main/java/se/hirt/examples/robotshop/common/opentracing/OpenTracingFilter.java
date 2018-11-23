@@ -41,6 +41,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Context;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.web.servlet.filter.HttpServletRequestExtractAdapter;
@@ -77,14 +78,15 @@ public class OpenTracingFilter implements ContainerRequestFilter, ContainerRespo
 			throws IOException {
 		if (isTraced(requestContext) && !keepOpen(requestContext.getProperty(PROPERTY_KEEP_OPEN))) {
 			Scope scope = getActiveScope(httpRequest);
-			scope.span().finish();
+			Span span = scope.span(); 
 			scope.close();
+			span.finish();
 		}
 	}
 
 	private boolean keepOpen(Object property) {
 		if (property == null) {
-			return true;
+			return false;
 		}
 		if (property instanceof Boolean) {
 			return (Boolean) property;

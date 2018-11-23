@@ -50,6 +50,7 @@ import io.opentracing.log.Fields;
 import io.opentracing.util.GlobalTracer;
 import se.hirt.examples.robotshop.common.util.Logger;
 import se.hirt.examples.robotshop.common.util.Utils;
+import se.hirt.jmc.opentracing.DelegatingJfrTracer;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Reporter;
@@ -141,7 +142,6 @@ public class OpenTracingUtil {
 			tracer = BraveTracer
 					.create(Tracing.newBuilder().localServiceName(serviceName).spanReporter(reporter).build());
 		}
-		// FIXME: Add delegating JFR tracer
-		GlobalTracer.register(tracer);
+		GlobalTracer.register(new DelegatingJfrTracer(tracer));
 	}
 }
