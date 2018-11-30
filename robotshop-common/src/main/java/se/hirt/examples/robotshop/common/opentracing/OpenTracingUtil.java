@@ -50,7 +50,7 @@ import io.opentracing.log.Fields;
 import io.opentracing.util.GlobalTracer;
 import se.hirt.examples.robotshop.common.util.Logger;
 import se.hirt.examples.robotshop.common.util.Utils;
-import se.hirt.jmc.opentracing.DelegatingJfrTracer;
+import io.opentracing.contrib.jfrtracer.DelegatingJfrTracer;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Reporter;
@@ -97,11 +97,10 @@ public class OpenTracingUtil {
 	}
 
 	/**
-	 * Configures open tracing from the properties read, either from the default file, or as
-	 * configured by the tracingConfiguration properties file.
+	 * Configures open tracing from the properties read, either from the default
+	 * file, or as configured by the tracingConfiguration properties file.
 	 * 
-	 * @param componentName
-	 *            the name of the component.
+	 * @param componentName the name of the component.
 	 */
 	public static void configureOpenTracing(String componentName) {
 		configureOpenTracing(CONFIGURATION, componentName);
@@ -110,10 +109,9 @@ public class OpenTracingUtil {
 	/**
 	 * Returns a map with the information appropriate to log on exception.
 	 * 
-	 * @param t
-	 *            the exception to log.
-	 * @return the map with information suitable for the {@link io.opentracing.Span#log(Map)}
-	 *         method.
+	 * @param t the exception to log.
+	 * @return the map with information suitable for the
+	 *         {@link io.opentracing.Span#log(Map)} method.
 	 */
 	public static Map<String, Object> getSpanLogMap(Throwable t) {
 		// Want to keep this compilable with JDK 8, so not using Map.of...
