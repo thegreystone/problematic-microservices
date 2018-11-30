@@ -51,7 +51,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<zipkin.version>2.7.6</zipkin.version>
 		<jaeger.version>0.32.0</jaeger.version>
-		<jfrtracer.version>0.0.3</jfrtracer.version>
+		<jfrtracer.version>0.0.4-SNAPSHOT</jfrtracer.version>
 	</properties>
 	
 	<dependencies>
@@ -112,7 +112,7 @@
 			<version>${tomcat.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>se.hirt.jmc</groupId>
+			<groupId>io.opentracing.contrib</groupId>
 			<artifactId>jfr-tracer</artifactId>
 			<version>${jfrtracer.version}</version>
 		</dependency>
