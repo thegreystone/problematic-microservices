@@ -44,7 +44,7 @@ import io.jaegertracing.Configuration;
 import io.jaegertracing.Configuration.ReporterConfiguration;
 import io.jaegertracing.Configuration.SamplerConfiguration;
 import io.jaegertracing.Configuration.SenderConfiguration;
-import io.jaegertracing.samplers.ConstSampler;
+import io.jaegertracing.internal.samplers.ConstSampler;
 import io.opentracing.Tracer;
 import io.opentracing.log.Fields;
 import io.opentracing.util.GlobalTracer;

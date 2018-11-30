@@ -50,8 +50,8 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<zipkin.version>2.7.6</zipkin.version>
-		<jaeger.version>0.27.0</jaeger.version>
-		<jfrtracer.version>0.0.1</jfrtracer.version>
+		<jaeger.version>0.32.0</jaeger.version>
+		<jfrtracer.version>0.0.3</jfrtracer.version>
 	</properties>
 	
 	<dependencies>
@@ -78,7 +78,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.jaegertracing</groupId>
-			<artifactId>jaeger-core</artifactId>
+			<artifactId>jaeger-client</artifactId>
 			<version>${jaeger.version}</version>
 		</dependency>
 		<dependency>
