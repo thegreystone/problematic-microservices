@@ -47,8 +47,6 @@
 		<jersey.version>2.27</jersey.version>
 		<jaxb.version>2.4.0-b180725.0644</jaxb.version>
 		<okhttp.version>3.7.0</okhttp.version>
-		<zipkin.version>2.7.6</zipkin.version>
-		<jaeger.version>0.27.0</jaeger.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -118,26 +116,6 @@
 			<groupId>io.opentracing.contrib</groupId>
 			<artifactId>opentracing-okhttp3</artifactId>
 			<version>0.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jaegertracing</groupId>
-			<artifactId>jaeger-core</artifactId>
-			<version>${jaeger.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.zipkin.reporter2</groupId>
-			<artifactId>zipkin-reporter</artifactId>
-			<version>${zipkin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.zipkin.reporter2</groupId>
-			<artifactId>zipkin-sender-okhttp3</artifactId>
-			<version>${zipkin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.opentracing.brave</groupId>
-			<artifactId>brave-opentracing</artifactId>
-			<version>0.31.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
