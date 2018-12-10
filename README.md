@@ -45,6 +45,15 @@ Note that for Windows, path size limits may make the launch scripts unuseable. I
 For some examples on API usage, see the following Postman collection:
 https://www.getpostman.com/collections/622fac93f3f20b1bd70b
 
+The easiest way to start running is probably to use one of the load generating scripts, for example:
+
+```bash
+cd robot-shop-load
+target/bin/loadWorker
+```
+
+It will shoot off a full systems test, involving creating a random user, submitting an random order with a random number of robots, picking up the order and then deleting the user. Press enter to create another, or q followed by enter to quit.
+
 # Selecting a Tracer
 The example has support for two common tracers supporting Open Tracing - jaeger and zipkin. More can easily be added by updating se.hirt.examples.robotshop.common.opentracing.OpenTracingUtil and adding dependencies to the pom-file.
 
