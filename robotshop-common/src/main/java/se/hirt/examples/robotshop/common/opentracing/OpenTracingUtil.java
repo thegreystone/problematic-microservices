@@ -137,7 +137,7 @@ public class OpenTracingUtil {
 			tracer = new Configuration(serviceName).withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
 		} else if ("zipkin".equals(tracerName)) {
 			OkHttpSender sender = OkHttpSender.create("http://" + configuration.getProperty("zipkin.reporter.host")
-					+ ":" + configuration.getProperty("zipkin.reporter.port") + "/api/v1/spans");
+					+ ":" + configuration.getProperty("zipkin.reporter.port") + "/api/v2/spans");
 			Reporter<Span> reporter = AsyncReporter.builder(sender).build();
 			tracer = BraveTracer
 					.create(Tracing.newBuilder().localServiceName(serviceName).spanReporter(reporter).build());
