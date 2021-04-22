@@ -115,6 +115,7 @@
 				<configuration>
 					<extraJvmArguments>-Xms128m</extraJvmArguments>
 					<assembleDirectory>target</assembleDirectory>
+					<repositoryLayout>flat</repositoryLayout>
 					<programs>
 						<program>
 							<mainClass>se.hirt.examples.robotshop.customerservice.Main</mainClass>

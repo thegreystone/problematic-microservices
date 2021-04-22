@@ -7,6 +7,17 @@ mvn package
 ```
 # Running
 The build will produce scripts to launch the different services. The different services are customer, factory and order. It is recommended to launch them in separate terminals.
+On Windows the Classpath length will make the scripts become unusable. Either use the Eclipse launcher (see running from within Eclipse) or modify the generated scripts slightly.
+
+In each script replace this
+
+```bash
+set CLASSPATH="%BASEDIR%"\etc;"%REPO%"\<very-long-line>
+```
+by
+```bash
+set CLASSPATH="%BASEDIR%"\etc;"%REPO%"\*
+```
 
 On Windows, use:
 
@@ -39,8 +50,6 @@ Mac OS X:
 export FACTORY_SERVICE_LOCATION=http://<host>:<port>
 export CUSTOMER_SERVICE_LOCATION=http://<host>:<port>
 ```
-
-Note that for Windows, path size limits may make the launch scripts unuseable. If so, see running from within Eclipse.
 
 For some examples on API usage, see the following Postman collection:
 https://www.getpostman.com/collections/622fac93f3f20b1bd70b
